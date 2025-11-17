@@ -33,10 +33,10 @@ export default function TabShopManagement() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
-    const [filterShopId, setFilterShopId] = useState<string>('all');
+    const [filterShopId, setFilterShopId] = useState<string | undefined>('all');
 
     const [formData, setFormData] = useState({
-        shop_id: '',
+        shop_id: undefined as string | undefined,
         tab_name: '',
         tab_index: '0',
         items: '[]'
@@ -90,7 +90,10 @@ export default function TabShopManagement() {
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    shop_id: formData.shop_id || ''
+                })
             });
 
             const result = await response.json();
@@ -144,7 +147,7 @@ export default function TabShopManagement() {
 
     const resetForm = () => {
         setFormData({
-            shop_id: '',
+            shop_id: undefined,
             tab_name: '',
             tab_index: '0',
             items: '[]'
@@ -293,6 +296,9 @@ export default function TabShopManagement() {
                                     <SelectValue placeholder="Chọn shop..." />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="placeholder" disabled>
+                                        Chọn shop...
+                                    </SelectItem>
                                     {shops.map((shop) => (
                                         <SelectItem key={shop.id} value={shop.id.toString()}>
                                             Shop #{shop.id} - {shop.npc_template.NAME} ({shop.tag_name || 'N/A'})
