@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "prisma:pull": "bun prisma db pull",
+    "prisma:generate": "bun prisma generate",
+    "prisma:sync": "bun prisma db pull && bun prisma generate",
+    "build": "bun run prisma:sync && bun run next build",
     "start": "next start",
     "lint": "eslint"
   },
