@@ -33,7 +33,7 @@ export default function TabShopManagement() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
-    const [filterShopId, setFilterShopId] = useState<string>('');
+    const [filterShopId, setFilterShopId] = useState<string>('all');
 
     const [formData, setFormData] = useState({
         shop_id: '',
@@ -65,7 +65,7 @@ export default function TabShopManagement() {
     const fetchTabShops = async () => {
         try {
             setLoading(true);
-            const url = filterShopId
+            const url = filterShopId && filterShopId !== 'all'
                 ? `/api/tab-shop?shop_id=${filterShopId}`
                 : '/api/tab-shop';
             const response = await fetch(url);
@@ -182,7 +182,7 @@ export default function TabShopManagement() {
                                     <SelectValue placeholder="Tất cả" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Tất cả</SelectItem>
+                                    <SelectItem value="all">Tất cả</SelectItem>
                                     {shops.map((shop) => (
                                         <SelectItem key={shop.id} value={shop.id.toString()}>
                                             Shop #{shop.id} - {shop.npc_template.NAME} ({shop.tag_name || 'N/A'})
