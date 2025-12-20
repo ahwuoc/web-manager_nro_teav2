@@ -30,9 +30,31 @@ interface ItemEditorProps {
     onChange: (value: string) => void;
 }
 
+interface ItemTemplate {
+    id: number;
+    NAME: string;
+    description: string;
+    TYPE: number;
+    level: number;
+    gold: number;
+    gem: number;
+}
+
+interface ItemOptionTemplate {
+    id: number;
+    NAME: string;
+    type: number;
+}
+
 export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
     const [items, setItems] = useState<ShopItem[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [itemTemplates, setItemTemplates] = useState<{ [key: number]: ItemTemplate }>({});
+    const [optionTemplates, setOptionTemplates] = useState<{ [key: number]: ItemOptionTemplate }>({});
+    const [allItemTemplates, setAllItemTemplates] = useState<ItemTemplate[]>([]);
+    const [allOptionTemplates, setAllOptionTemplates] = useState<ItemOptionTemplate[]>([]);
+    const [searchTerm, setSearchTerm] = useState<{ [key: number]: string }>({});
+    const [optionSearchTerm, setOptionSearchTerm] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         try {
@@ -44,6 +66,79 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
             setItems([]);
         }
     }, [value]);
+
+    // Fetch all item templates and option templates on mount
+    useEffect(() => {
+        fetchItemTemplates();
+        fetchOptionTemplates();
+    }, []);
+
+    // Fetch specific item templates when items change
+    useEffect(() => {
+        if (items.length > 0) {
+            const itemIds = items.map(item => item.temp_id).filter(id => id > 0);
+            if (itemIds.length > 0) {
+                fetchSpecificItemTemplates(itemIds);
+            }
+
+            const optionIds = items.flatMap(item =>
+                item.options.map(opt => opt.id)
+            ).filter(id => id > 0);
+            if (optionIds.length > 0) {
+                fetchSpecificOptionTemplates(optionIds);
+            }
+        }
+    }, [items]);
+
+    const fetchItemTemplates = async () => {
+        try {
+            const response = await fetch('/api/item-template');
+            const data = await response.json();
+            if (data.success) {
+                setAllItemTemplates(data.data);
+                setItemTemplates(data.map);
+            }
+        } catch (error) {
+            console.error('Error fetching item templates:', error);
+        }
+    };
+
+    const fetchOptionTemplates = async () => {
+        try {
+            const response = await fetch('/api/item-option-template');
+            const data = await response.json();
+            if (data.success) {
+                setAllOptionTemplates(data.data);
+                setOptionTemplates(data.map);
+            }
+        } catch (error) {
+            console.error('Error fetching option templates:', error);
+        }
+    };
+
+    const fetchSpecificItemTemplates = async (ids: number[]) => {
+        try {
+            const response = await fetch(`/api/item-template?ids=${ids.join(',')}`);
+            const data = await response.json();
+            if (data.success) {
+                setItemTemplates(prev => ({ ...prev, ...data.map }));
+            }
+        } catch (error) {
+            console.error('Error fetching specific item templates:', error);
+        }
+    };
+
+    const fetchSpecificOptionTemplates = async (ids: number[]) => {
+        try {
+            const response = await fetch(`/api/item-option-template?ids=${ids.join(',')}`);
+            const data = await response.json();
+            if (data.success) {
+                setOptionTemplates(prev => ({ ...prev, ...data.map }));
+            }
+        } catch (error) {
+            console.error('Error fetching specific option templates:', error);
+        }
+    };
 
     const updateItems = (newItems: ShopItem[]) => {
         setItems(newItems);
@@ -149,7 +244,7 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
                                     <div className="flex items-center justify-between">
                                         <AccordionTrigger className="hover:no-underline flex-1">
                                             <CardTitle className="text-base">
-                                                Item #{index + 1} - ID: {item.temp_id} | Giá: {item.cost}
+                                                Item #{index + 1} - {itemTemplates[item.temp_id]?.NAME || `ID: ${item.temp_id}`} | Giá: {item.cost}
                                             </CardTitle>
                                         </AccordionTrigger>
                                         <div className="flex gap-1 ml-2">
@@ -195,12 +290,45 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
                                     <CardContent className="space-y-4 pt-0">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label>Item Template ID</Label>
-                                                <Input
-                                                    type="number"
-                                                    value={item.temp_id}
-                                                    onChange={(e) => updateItem(index, 'temp_id', parseInt(e.target.value) || 0)}
-                                                />
+                                                <Label>Item Template</Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Tìm kiếm item..."
+                                                        value={searchTerm[index] || ''}
+                                                        onChange={(e) => {
+                                                            setSearchTerm({ ...searchTerm, [index]: e.target.value });
+                                                        }}
+                                                        className="mb-2"
+                                                    />
+                                                    <select
+                                                        className="w-full p-2 border rounded"
+                                                        value={item.temp_id}
+                                                        onChange={(e) => {
+                                                            updateItem(index, 'temp_id', parseInt(e.target.value) || 0);
+                                                            setSearchTerm({ ...searchTerm, [index]: '' });
+                                                        }}
+                                                    >
+                                                        <option value="0">Chọn item...</option>
+                                                        {allItemTemplates
+                                                            .filter(template =>
+                                                                !searchTerm[index] ||
+                                                                template.NAME.toLowerCase().includes(searchTerm[index].toLowerCase()) ||
+                                                                template.id.toString().includes(searchTerm[index])
+                                                            )
+                                                            .slice(0, 100)
+                                                            .map(template => (
+                                                                <option key={template.id} value={template.id}>
+                                                                    {template.id} - {template.NAME}
+                                                                </option>
+                                                            ))}
+                                                    </select>
+                                                    {itemTemplates[item.temp_id] && (
+                                                        <div className="text-xs text-gray-600 mt-1">
+                                                            Mô tả: {itemTemplates[item.temp_id].description}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Giá (Cost)</Label>
@@ -278,31 +406,73 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
                                             </div>
 
                                             {item.options.map((option, optIndex) => (
-                                                <div key={optIndex} className="flex gap-2 items-end">
-                                                    <div className="flex-1 space-y-2">
-                                                        <Label className="text-xs">Option ID</Label>
-                                                        <Input
-                                                            type="number"
-                                                            value={option.id}
-                                                            onChange={(e) => updateOption(index, optIndex, 'id', parseInt(e.target.value) || 0)}
-                                                        />
+                                                <div key={optIndex} className="space-y-2">
+                                                    <div className="flex gap-2 items-start">
+                                                        <div className="flex-1">
+                                                            <Label className="text-xs">Option</Label>
+                                                            <div className="space-y-2">
+                                                                <Input
+                                                                    type="text"
+                                                                    placeholder="Tìm kiếm option..."
+                                                                    value={optionSearchTerm[`${index}-${optIndex}`] || ''}
+                                                                    onChange={(e) => {
+                                                                        setOptionSearchTerm({
+                                                                            ...optionSearchTerm,
+                                                                            [`${index}-${optIndex}`]: e.target.value
+                                                                        });
+                                                                    }}
+                                                                    className="text-sm"
+                                                                />
+                                                                <select
+                                                                    className="w-full p-2 border rounded text-sm"
+                                                                    value={option.id}
+                                                                    onChange={(e) => {
+                                                                        updateOption(index, optIndex, 'id', parseInt(e.target.value) || 0);
+                                                                        setOptionSearchTerm({
+                                                                            ...optionSearchTerm,
+                                                                            [`${index}-${optIndex}`]: ''
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    <option value="0">Chọn option...</option>
+                                                                    {allOptionTemplates
+                                                                        .filter(template =>
+                                                                            !optionSearchTerm[`${index}-${optIndex}`] ||
+                                                                            template.NAME.toLowerCase().includes(optionSearchTerm[`${index}-${optIndex}`].toLowerCase()) ||
+                                                                            template.id.toString().includes(optionSearchTerm[`${index}-${optIndex}`])
+                                                                        )
+                                                                        .slice(0, 50)
+                                                                        .map(template => (
+                                                                            <option key={template.id} value={template.id}>
+                                                                                {template.id} - {template.NAME}
+                                                                            </option>
+                                                                        ))}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <Label className="text-xs">Giá trị (Param)</Label>
+                                                            <Input
+                                                                type="number"
+                                                                value={option.param}
+                                                                onChange={(e) => updateOption(index, optIndex, 'param', parseInt(e.target.value) || 0)}
+                                                                className="text-sm"
+                                                            />
+                                                        </div>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => deleteOption(index, optIndex)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4 text-red-500" />
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex-1 space-y-2">
-                                                        <Label className="text-xs">Param</Label>
-                                                        <Input
-                                                            type="number"
-                                                            value={option.param}
-                                                            onChange={(e) => updateOption(index, optIndex, 'param', parseInt(e.target.value) || 0)}
-                                                        />
-                                                    </div>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => deleteOption(index, optIndex)}
-                                                    >
-                                                        <Trash2 className="w-4 h-4 text-red-500" />
-                                                    </Button>
+                                                    {optionTemplates[option.id] && (
+                                                        <div className="text-xs text-gray-600 pl-2">
+                                                            Hiện tại: {optionTemplates[option.id].NAME} = {option.param}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
