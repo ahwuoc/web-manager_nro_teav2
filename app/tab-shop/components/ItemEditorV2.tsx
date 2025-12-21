@@ -1,14 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Plus, Trash2, Copy, ChevronUp, ChevronDown } from 'lucide-react';
+import { Button, Input, Select, Checkbox, Collapse, Space, InputNumber, Tooltip } from 'antd';
+import { PlusOutlined, DeleteOutlined, CopyOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
 interface ItemOption {
     id: number;
@@ -67,13 +61,11 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
         }
     }, [value]);
 
-    // Fetch all item templates and option templates on mount
     useEffect(() => {
         fetchItemTemplates();
         fetchOptionTemplates();
     }, []);
 
-    // Fetch specific item templates when items change
     useEffect(() => {
         if (items.length > 0) {
             const itemIds = items.map(item => item.temp_id).filter(id => id > 0);
@@ -159,9 +151,7 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
     };
 
     const deleteItem = (index: number) => {
-        if (confirm('Xóa item này?')) {
-            updateItems(items.filter((_, i) => i !== index));
-        }
+        updateItems(items.filter((_, i) => i !== index));
     };
 
     const updateItem = (index: number, field: keyof ShopItem, value: any) => {
@@ -209,279 +199,243 @@ export default function ItemEditorV2({ value, onChange }: ItemEditorProps) {
 
     if (error) {
         return (
-            <Card className="border-red-500">
-                <CardContent className="pt-6">
-                    <p className="text-red-500 text-sm">❌ JSON Error: {error}</p>
-                </CardContent>
-            </Card>
+            <div className="p-4 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+                ❌ JSON Error: {error}
+            </div>
         );
     }
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Danh sách Items ({items.length})</p>
-                <Button onClick={addNewItem} size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
+                <span className="text-sm font-medium">Danh sách Items ({items.length})</span>
+                <Button type="primary" icon={<PlusOutlined />} onClick={addNewItem} size="small">
                     Thêm Item
                 </Button>
             </div>
 
             {items.length === 0 ? (
-                <Card className="border-dashed">
-                    <CardContent className="pt-6">
-                        <p className="text-center text-muted-foreground text-sm">
-                            Chưa có items. Click "Thêm Item" để bắt đầu.
-                        </p>
-                    </CardContent>
-                </Card>
+                <div className="p-4 text-center text-gray-500 border border-dashed rounded">
+                    Chưa có items. Click "Thêm Item" để bắt đầu.
+                </div>
             ) : (
-                <Accordion type="multiple" className="space-y-3">
-                    {items.map((item, index) => (
-                        <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg">
-                            <Card>
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-center justify-between">
-                                        <AccordionTrigger className="hover:no-underline flex-1">
-                                            <CardTitle className="text-base">
-                                                Item #{index + 1} - {itemTemplates[item.temp_id]?.NAME || `ID: ${item.temp_id}`} | Giá: {item.cost}
-                                            </CardTitle>
-                                        </AccordionTrigger>
-                                        <div className="flex gap-1 ml-2">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => moveItem(index, 'up')}
-                                                disabled={index === 0}
-                                            >
-                                                <ChevronUp className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => moveItem(index, 'down')}
-                                                disabled={index === items.length - 1}
-                                            >
-                                                <ChevronDown className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => duplicateItem(index)}
-                                            >
-                                                <Copy className="w-4 h-4" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => deleteItem(index)}
-                                            >
-                                                <Trash2 className="w-4 h-4 text-red-500" />
-                                            </Button>
-                                        </div>
+                <Collapse
+                    items={items.map((item, index) => ({
+                        key: index,
+                        label: (
+                            <span>
+                                Item #{index + 1} - {itemTemplates[item.temp_id]?.NAME || `ID: ${item.temp_id}`} | Giá: {item.cost}
+                            </span>
+                        ),
+                        extra: (
+                            <Space size="small" onClick={(e) => e.stopPropagation()}>
+                                <Tooltip title="Lên">
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<ArrowUpOutlined />}
+                                        onClick={() => moveItem(index, 'up')}
+                                        disabled={index === 0}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Xuống">
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<ArrowDownOutlined />}
+                                        onClick={() => moveItem(index, 'down')}
+                                        disabled={index === items.length - 1}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Nhân bản">
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<CopyOutlined />}
+                                        onClick={() => duplicateItem(index)}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="Xóa">
+                                    <Button
+                                        type="text"
+                                        danger
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={() => deleteItem(index)}
+                                    />
+                                </Tooltip>
+                            </Space>
+                        ),
+                        children: (
+                            <div className="space-y-4 pt-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-sm font-medium mb-2 block">Item Template</label>
+                                        <Input
+                                            placeholder="Tìm kiếm item..."
+                                            value={searchTerm[index] || ''}
+                                            onChange={(e) => {
+                                                setSearchTerm({ ...searchTerm, [index]: e.target.value });
+                                            }}
+                                            size="small"
+                                            className="mb-2"
+                                        />
+                                        <Select
+                                            value={item.temp_id || undefined}
+                                            onChange={(val) => {
+                                                updateItem(index, 'temp_id', val || 0);
+                                                setSearchTerm({ ...searchTerm, [index]: '' });
+                                            }}
+                                            placeholder="Chọn item..."
+                                            size="small"
+                                            style={{ width: '100%' }}
+                                            options={allItemTemplates
+                                                .filter(template =>
+                                                    !searchTerm[index] ||
+                                                    template.NAME.toLowerCase().includes(searchTerm[index].toLowerCase()) ||
+                                                    template.id.toString().includes(searchTerm[index])
+                                                )
+                                                .slice(0, 100)
+                                                .map(template => ({
+                                                    label: `${template.id} - ${template.NAME}`,
+                                                    value: template.id
+                                                }))}
+                                        />
+                                        {itemTemplates[item.temp_id] && (
+                                            <div className="text-xs text-gray-600 mt-1">
+                                                {itemTemplates[item.temp_id].description}
+                                            </div>
+                                        )}
                                     </div>
-                                </CardHeader>
+                                    <div>
+                                        <label className="text-sm font-medium mb-2 block">Giá (Cost)</label>
+                                        <InputNumber
+                                            value={item.cost}
+                                            onChange={(val) => updateItem(index, 'cost', val || 0)}
+                                            style={{ width: '100%' }}
+                                            size="small"
+                                        />
+                                    </div>
+                                </div>
 
-                                <AccordionContent>
-                                    <CardContent className="space-y-4 pt-0">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Item Template</Label>
-                                                <div className="relative">
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Tìm kiếm item..."
-                                                        value={searchTerm[index] || ''}
-                                                        onChange={(e) => {
-                                                            setSearchTerm({ ...searchTerm, [index]: e.target.value });
-                                                        }}
-                                                        className="mb-2"
-                                                    />
-                                                    <select
-                                                        className="w-full p-2 border rounded"
-                                                        value={item.temp_id}
-                                                        onChange={(e) => {
-                                                            updateItem(index, 'temp_id', parseInt(e.target.value) || 0);
-                                                            setSearchTerm({ ...searchTerm, [index]: '' });
-                                                        }}
-                                                    >
-                                                        <option value="0">Chọn item...</option>
-                                                        {allItemTemplates
-                                                            .filter(template =>
-                                                                !searchTerm[index] ||
-                                                                template.NAME.toLowerCase().includes(searchTerm[index].toLowerCase()) ||
-                                                                template.id.toString().includes(searchTerm[index])
-                                                            )
-                                                            .slice(0, 100)
-                                                            .map(template => (
-                                                                <option key={template.id} value={template.id}>
-                                                                    {template.id} - {template.NAME}
-                                                                </option>
-                                                            ))}
-                                                    </select>
-                                                    {itemTemplates[item.temp_id] && (
-                                                        <div className="text-xs text-gray-600 mt-1">
-                                                            Mô tả: {itemTemplates[item.temp_id].description}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>Giá (Cost)</Label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-sm font-medium mb-2 block">Loại bán</label>
+                                        <Select
+                                            value={item.type_sell}
+                                            onChange={(val) => updateItem(index, 'type_sell', val)}
+                                            size="small"
+                                            style={{ width: '100%' }}
+                                            options={[
+                                                { label: 'Vàng', value: 0 },
+                                                { label: 'Ngọc', value: 1 },
+                                                { label: 'Hồng Ngọc', value: 3 }
+                                            ]}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-medium mb-2 block">Item Spec</label>
+                                        <InputNumber
+                                            value={item.item_spec}
+                                            onChange={(val) => updateItem(index, 'item_spec', val || 0)}
+                                            style={{ width: '100%' }}
+                                            size="small"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-6">
+                                    <Checkbox
+                                        checked={item.is_new}
+                                        onChange={(e) => updateItem(index, 'is_new', e.target.checked)}
+                                    >
+                                        Mới (is_new)
+                                    </Checkbox>
+                                    <Checkbox
+                                        checked={item.is_sell}
+                                        onChange={(e) => updateItem(index, 'is_sell', e.target.checked)}
+                                    >
+                                        Có bán (is_sell)
+                                    </Checkbox>
+                                </div>
+
+                                {/* Options */}
+                                <div className="border-t pt-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-sm font-medium">Options ({item.options.length})</span>
+                                        <Button
+                                            type="dashed"
+                                            size="small"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => addOption(index)}
+                                        >
+                                            Thêm Option
+                                        </Button>
+                                    </div>
+
+                                    {item.options.map((option, optIndex) => (
+                                        <div key={optIndex} className="flex gap-2 items-end mb-2">
+                                            <div className="flex-1">
                                                 <Input
-                                                    type="number"
-                                                    value={item.cost}
-                                                    onChange={(e) => updateItem(index, 'cost', parseInt(e.target.value) || 0)}
+                                                    placeholder="Tìm kiếm option..."
+                                                    value={optionSearchTerm[`${index}-${optIndex}`] || ''}
+                                                    onChange={(e) => {
+                                                        setOptionSearchTerm({
+                                                            ...optionSearchTerm,
+                                                            [`${index}-${optIndex}`]: e.target.value
+                                                        });
+                                                    }}
+                                                    size="small"
+                                                    className="mb-1"
                                                 />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Loại bán</Label>
                                                 <Select
-                                                    value={item.type_sell.toString()}
-                                                    onValueChange={(val) => updateItem(index, 'type_sell', parseInt(val))}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="0">Vàng</SelectItem>
-                                                        <SelectItem value="1">Ngọc</SelectItem>
-                                                        <SelectItem value="3">Hồng Ngọc</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>Item Spec</Label>
-                                                <Input
-                                                    type="number"
-                                                    value={item.item_spec}
-                                                    onChange={(e) => updateItem(index, 'item_spec', parseInt(e.target.value) || 0)}
+                                                    value={option.id || undefined}
+                                                    onChange={(val) => {
+                                                        updateOption(index, optIndex, 'id', val || 0);
+                                                        setOptionSearchTerm({
+                                                            ...optionSearchTerm,
+                                                            [`${index}-${optIndex}`]: ''
+                                                        });
+                                                    }}
+                                                    placeholder="Chọn option..."
+                                                    size="small"
+                                                    style={{ width: '100%' }}
+                                                    options={allOptionTemplates
+                                                        .filter(template =>
+                                                            !optionSearchTerm[`${index}-${optIndex}`] ||
+                                                            template.NAME.toLowerCase().includes(optionSearchTerm[`${index}-${optIndex}`].toLowerCase()) ||
+                                                            template.id.toString().includes(optionSearchTerm[`${index}-${optIndex}`])
+                                                        )
+                                                        .slice(0, 50)
+                                                        .map(template => ({
+                                                            label: `${template.id} - ${template.NAME}`,
+                                                            value: template.id
+                                                        }))}
                                                 />
                                             </div>
-                                        </div>
-
-                                        <div className="flex gap-6">
-                                            <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`new-${index}`}
-                                                    checked={item.is_new}
-                                                    onCheckedChange={(checked) => updateItem(index, 'is_new', checked)}
+                                            <div className="w-24">
+                                                <InputNumber
+                                                    placeholder="Giá trị"
+                                                    value={option.param}
+                                                    onChange={(val) => updateOption(index, optIndex, 'param', val || 0)}
+                                                    size="small"
+                                                    style={{ width: '100%' }}
                                                 />
-                                                <Label htmlFor={`new-${index}`} className="cursor-pointer">
-                                                    Mới (is_new)
-                                                </Label>
                                             </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`sell-${index}`}
-                                                    checked={item.is_sell}
-                                                    onCheckedChange={(checked) => updateItem(index, 'is_sell', checked)}
-                                                />
-                                                <Label htmlFor={`sell-${index}`} className="cursor-pointer">
-                                                    Có bán (is_sell)
-                                                </Label>
-                                            </div>
+                                            <Button
+                                                type="text"
+                                                danger
+                                                size="small"
+                                                icon={<DeleteOutlined />}
+                                                onClick={() => deleteOption(index, optIndex)}
+                                            />
                                         </div>
-
-                                        {/* Options */}
-                                        <div className="border-t pt-4 space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <Label>Options ({item.options.length})</Label>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => addOption(index)}
-                                                >
-                                                    <Plus className="w-3 h-3 mr-1" />
-                                                    Thêm Option
-                                                </Button>
-                                            </div>
-
-                                            {item.options.map((option, optIndex) => (
-                                                <div key={optIndex} className="space-y-2">
-                                                    <div className="flex gap-2 items-start">
-                                                        <div className="flex-1">
-                                                            <Label className="text-xs">Option</Label>
-                                                            <div className="space-y-2">
-                                                                <Input
-                                                                    type="text"
-                                                                    placeholder="Tìm kiếm option..."
-                                                                    value={optionSearchTerm[`${index}-${optIndex}`] || ''}
-                                                                    onChange={(e) => {
-                                                                        setOptionSearchTerm({
-                                                                            ...optionSearchTerm,
-                                                                            [`${index}-${optIndex}`]: e.target.value
-                                                                        });
-                                                                    }}
-                                                                    className="text-sm"
-                                                                />
-                                                                <select
-                                                                    className="w-full p-2 border rounded text-sm"
-                                                                    value={option.id}
-                                                                    onChange={(e) => {
-                                                                        updateOption(index, optIndex, 'id', parseInt(e.target.value) || 0);
-                                                                        setOptionSearchTerm({
-                                                                            ...optionSearchTerm,
-                                                                            [`${index}-${optIndex}`]: ''
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    <option value="0">Chọn option...</option>
-                                                                    {allOptionTemplates
-                                                                        .filter(template =>
-                                                                            !optionSearchTerm[`${index}-${optIndex}`] ||
-                                                                            template.NAME.toLowerCase().includes(optionSearchTerm[`${index}-${optIndex}`].toLowerCase()) ||
-                                                                            template.id.toString().includes(optionSearchTerm[`${index}-${optIndex}`])
-                                                                        )
-                                                                        .slice(0, 50)
-                                                                        .map(template => (
-                                                                            <option key={template.id} value={template.id}>
-                                                                                {template.id} - {template.NAME}
-                                                                            </option>
-                                                                        ))}
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <Label className="text-xs">Giá trị (Param)</Label>
-                                                            <Input
-                                                                type="number"
-                                                                value={option.param}
-                                                                onChange={(e) => updateOption(index, optIndex, 'param', parseInt(e.target.value) || 0)}
-                                                                className="text-sm"
-                                                            />
-                                                        </div>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            onClick={() => deleteOption(index, optIndex)}
-                                                        >
-                                                            <Trash2 className="w-4 h-4 text-red-500" />
-                                                        </Button>
-                                                    </div>
-                                                    {optionTemplates[option.id] && (
-                                                        <div className="text-xs text-gray-600 pl-2">
-                                                            Hiện tại: {optionTemplates[option.id].NAME} = {option.param}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </AccordionContent>
-                            </Card>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    }))}
+                />
             )}
         </div>
     );
