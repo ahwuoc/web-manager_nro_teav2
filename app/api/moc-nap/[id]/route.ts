@@ -40,10 +40,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { info, detail } = body;
+    const { info, required_amount, detail } = body;
 
     const updateData: any = {};
     if (info !== undefined) updateData.info = info;
+    if (required_amount !== undefined) updateData.required_amount = required_amount;
     if (detail !== undefined) updateData.detail = detail;
 
     const updatedMocNap = await prisma.moc_nap.update({

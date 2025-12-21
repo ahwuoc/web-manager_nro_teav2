@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { info, detail } = body;
+        const { info, required_amount, detail } = body;
 
         if (!info || !detail) {
             return NextResponse.json(
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         const newMocNap = await prisma.moc_nap.create({
             data: {
                 info,
+                required_amount: required_amount || 0,
                 detail
             }
         });
