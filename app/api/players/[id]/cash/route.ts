@@ -7,7 +7,7 @@ export async function POST(
 ) {
     try {
         const { id } = await params;
-        const { amount, action, addToDanap } = await request.json();
+        const { amount, action, addToDanap, subtractFromDanap } = await request.json();
         
         const account = await prisma.account.findUnique({
             where: { id: parseInt(id) },
@@ -24,9 +24,14 @@ export async function POST(
 
         const updateData: any = { cash: newCash };
         
-        // Nếu cộng tiền và có checkbox cộng vào danap
+        // Cộng tiền và cộng vào danap
         if (action === 'add' && addToDanap) {
             updateData.danap = account.danap + amount;
+        }
+        
+        // Trừ tiền và trừ từ danap
+        if (action === 'subtract' && subtractFromDanap) {
+            updateData.danap = Math.max(0, account.danap - amount);
         }
 
         await prisma.account.update({

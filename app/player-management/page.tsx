@@ -31,6 +31,7 @@ export default function PlayerManagementPage() {
     const [processing, setProcessing] = useState(false);
     const [actionType, setActionType] = useState<'add' | 'subtract'>('add');
     const [addToDanap, setAddToDanap] = useState(false);
+    const [subtractFromDanap, setSubtractFromDanap] = useState(false);
 
     useEffect(() => {
         fetchAccounts();
@@ -67,8 +68,9 @@ export default function PlayerManagementPage() {
         }
     };
 
-    const handleUpdateCash = async () => {
+    const handleUpdateCash = async (action?: 'add' | 'subtract') => {
         if (!cashAmount || !selectedAccount) return;
+        const finalAction = action || actionType;
         setProcessing(true);
         try {
             const response = await fetch(`/api/players/${selectedAccount.id}/cash`, {
@@ -76,14 +78,16 @@ export default function PlayerManagementPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     amount: parseInt(cashAmount),
-                    action: actionType,
-                    addToDanap: addToDanap && actionType === 'add'
+                    action: finalAction,
+                    addToDanap: addToDanap && finalAction === 'add',
+                    subtractFromDanap: subtractFromDanap && finalAction === 'subtract'
                 }),
             });
             if (response.ok) {
                 setCashAmount('');
                 setShowModal(false);
                 setAddToDanap(false);
+                setSubtractFromDanap(false);
                 fetchAccounts();
             }
         } catch (error) {
@@ -173,6 +177,8 @@ export default function PlayerManagementPage() {
                                 setShowModal(true);
                                 setCashAmount('');
                                 setActionType('add');
+                                setAddToDanap(false);
+                                setSubtractFromDanap(false);
                             }}
                             loading={processing}
                         >
@@ -230,7 +236,7 @@ export default function PlayerManagementPage() {
             <Modal
                 title={`Cộng/Trừ tiền - ${selectedAccount?.username}`}
                 open={showModal}
-                onOk={handleUpdateCash}
+                onOk={() => handleUpdateCash()}
                 onCancel={() => setShowModal(false)}
                 confirmLoading={processing}
                 okText="Xác nhận"
@@ -252,21 +258,25 @@ export default function PlayerManagementPage() {
                             min="0"
                         />
                     </div>
-                    {actionType === 'add' && (
-                        <Checkbox
-                            checked={addToDanap}
-                            onChange={(e) => setAddToDanap(e.target.checked)}
-                        >
-                            Cộng vào tổng nạp (danap)
-                        </Checkbox>
-                    )}
+                    <Checkbox
+                        checked={actionType === 'add' ? addToDanap : subtractFromDanap}
+                        onChange={(e) => {
+                            if (actionType === 'add') {
+                                setAddToDanap(e.target.checked);
+                            } else {
+                                setSubtractFromDanap(e.target.checked);
+                            }
+                        }}
+                    >
+                        Tác động đến tổng nạp (danap)
+                    </Checkbox>
                     <div className="flex gap-2">
                         <Button
                             type="primary"
                             block
                             onClick={() => {
                                 setActionType('add');
-                                handleUpdateCash();
+                                handleUpdateCash('add');
                             }}
                             disabled={!cashAmount}
                             loading={processing}
@@ -277,7 +287,7 @@ export default function PlayerManagementPage() {
                             block
                             onClick={() => {
                                 setActionType('subtract');
-                                handleUpdateCash();
+                                handleUpdateCash('subtract');
                             }}
                             disabled={!cashAmount}
                             loading={processing}
