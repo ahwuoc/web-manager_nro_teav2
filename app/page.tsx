@@ -101,9 +101,72 @@ export default function Home() {
               </div>
             </Link>
 
+            <Link href="/moc-online" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-green-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Quản lý Mốc Online
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Quản lý phần thưởng theo thời gian online
+                </p>
+                <div className="mt-4 text-green-600 dark:text-green-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/moc-tieutien" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-orange-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Quản lý Mốc Tiêu Tiền
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Quản lý phần thưởng theo mốc tiêu tiền
+                </p>
+                <div className="mt-4 text-orange-600 dark:text-orange-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/goi-qua" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-red-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Quản lý Gói Quà
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Quản lý các gói quà trong hệ thống
+                </p>
+                <div className="mt-4 text-red-600 dark:text-red-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
+              </div>
+            </Link>
+
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 opacity-60">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-green-500 rounded-lg p-3">
+                <div className="bg-cyan-500 rounded-lg p-3">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
@@ -114,25 +177,6 @@ export default function Home() {
               </div>
               <p className="text-gray-600 dark:text-gray-400">
                 Sắp ra mắt - Cấu hình và quản lý các sự kiện trong game
-              </p>
-              <div className="mt-4 text-gray-400 font-semibold">
-                Đang phát triển...
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 opacity-60">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="bg-orange-500 rounded-lg p-3">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Quản lý Giao dịch
-                </h2>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400">
-                Sắp ra mắt - Theo dõi lịch sử giao dịch và nạp tiền
               </p>
               <div className="mt-4 text-gray-400 font-semibold">
                 Đang phát triển...

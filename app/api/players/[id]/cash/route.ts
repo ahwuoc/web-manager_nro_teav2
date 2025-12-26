@@ -26,12 +26,13 @@ export async function POST(
         
         // Cộng tiền và cộng vào danap
         if (action === 'add' && addToDanap) {
-            updateData.danap = account.danap + amount;
+            updateData.danap = Number(account.danap) + amount;
         }
         
         // Trừ tiền và trừ từ danap
         if (action === 'subtract' && subtractFromDanap) {
-            updateData.danap = Math.max(0, account.danap - amount);
+            const newDanap = Number(account.danap) - amount;
+            updateData.danap = newDanap > 0 ? newDanap : 0;
         }
 
         await prisma.account.update({

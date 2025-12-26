@@ -40,7 +40,7 @@ model account {
   event_point      Int       @default(0)
   vip              Int       @default(0)
   mkc2             String?   @db.VarChar(255)
-  admin            Int
+  admin            Int?      @default(0)
   gioithieu        Int?
   gmail            String?   @db.VarChar(100)
   player           player?
@@ -57,18 +57,6 @@ model achievement_template {
 model array_head_2_frames {
   id   Int    @id @default(autoincrement())
   data String @db.Text
-}
-
-model atm_lichsu {
-  id             Int     @id @default(autoincrement())
-  user_nap       String? @db.VarChar(20)
-  magiaodich     String  @db.Text
-  thoigian       String? @db.Text
-  sotien         String? @db.Text
-  status         Int?
-  accountNo      Int?
-  benAccountName String? @db.VarChar(255)
-  bankName       String? @db.VarChar(255)
 }
 
 model bg_item_template {
@@ -111,20 +99,6 @@ model clan_task_template {
   max_count_lv3 String @db.VarChar(255)
   max_count_lv4 String @db.VarChar(255)
   max_count_lv5 String @db.VarChar(255)
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model cpanel {
-  userlogin String? @db.VarChar(20)
-  stk       String? @db.VarChar(20)
-  name      String? @db.VarChar(255)
-  password  String? @db.VarChar(255)
-  sessionId String? @db.VarChar(255)
-  deviceId  String? @db.VarChar(255)
-  token     String? @db.VarChar(255)
-  time      Int
-
-  @@ignore
 }
 
 model data_badges {
@@ -252,31 +226,6 @@ model mob_template {
   percent_tiem_nang Int    @default(50) @db.SmallInt
 }
 
-model moc_nap {
-  id              Int    @id @default(autoincrement())
-  info            String @db.Text
-  required_amount Int?   @default(0)
-  detail          String @db.Text
-}
-
-model moc_nap_top {
-  id     Int    @id @default(autoincrement())
-  info   String @db.Text
-  detail String @db.Text
-}
-
-model moc_suc_manh {
-  id     Int    @id @default(autoincrement())
-  info   String @db.Text
-  detail String @db.Text
-}
-
-model moc_suc_manh_top {
-  id     Int    @id @default(autoincrement())
-  info   String @db.Text
-  detail String @db.Text
-}
-
 model notify {
   id   Int    @id @default(autoincrement())
   name String @db.Text
@@ -291,15 +240,6 @@ model npc_template {
   leg    Int
   avatar Int?   @default(0)
   shop   shop[]
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model options {
-  Id   BigInt?
-  Name String? @db.VarChar(1024)
-  Type BigInt?
-
-  @@ignore
 }
 
 model part {
@@ -392,6 +332,9 @@ model player {
   luchien                BigInt   @default(0)
   PetTask                String?  @db.LongText
   pointdapdo             Int?     @default(0)
+  pointboss              Int?     @default(0)
+  online_milestones      String?  @db.Text
+  tieutien_milestones    Int?     @default(0)
   account                account? @relation(fields: [account_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "player_ibfk_1")
 }
 
@@ -472,21 +415,6 @@ model skill_template {
   @@id([nclass_id, id])
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model so_su_menh_reward {
-  level  Int?
-  items  String? @db.VarChar(255)
-  items2 String? @db.VarChar(255)
-
-  @@ignore
-}
-
-model so_su_menh_task {
-  id    Int     @id
-  task  String? @db.VarChar(255)
-  point Int?
-}
-
 model tab_shop {
   id        Int    @id @default(autoincrement())
   shop_id   Int
@@ -511,13 +439,6 @@ model task_main_template {
   detail String @db.VarChar(500)
 }
 
-model task_pet_template {
-  id       Int    @id @default(autoincrement())
-  nametask String @db.VarChar(255)
-  maxCount Int
-  reward   Int
-}
-
 model task_sub_template {
   task_main_id Int
   NAME         String @db.VarChar(255)
@@ -528,6 +449,146 @@ model task_sub_template {
   ducvupro     Int    @id @default(autoincrement())
 
   @@index([task_main_id], map: "task_main_id")
+}
+
+model type_item {
+  id         Int    @id @default(autoincrement())
+  NAME       String @default("") @db.VarChar(50)
+  index_body Int    @default(-1)
+}
+
+model type_sell_item_shop {
+  id   Int    @id @default(autoincrement())
+  NAME String @db.VarChar(50)
+}
+
+model moc_nap {
+  id              Int    @id @default(autoincrement())
+  info            String @db.MediumText
+  required_amount Int?   @default(0)
+  detail          String @db.MediumText
+}
+
+model moc_nap_top {
+  id     Int    @id @default(autoincrement())
+  info   String @db.MediumText
+  detail String @db.MediumText
+}
+
+model moc_online {
+  id              Int    @id @default(autoincrement())
+  info            String @db.MediumText
+  required_online Int?   @default(0)
+  detail          String @db.MediumText
+}
+
+model moc_suc_manh {
+  id     Int    @id @default(autoincrement())
+  info   String @db.Text
+  detail String @db.Text
+}
+
+model moc_suc_manh_top {
+  id     Int    @id @default(autoincrement())
+  info   String @db.Text
+  detail String @db.Text
+}
+
+model moc_tieutien {
+  id              Int    @id @default(autoincrement())
+  info            String @db.MediumText
+  required_amount Int?   @default(0)
+  detail          String @db.MediumText
+}
+
+model goi_qua {
+  id              Int    @id @default(autoincrement())
+  info            String @db.Text
+  required_amount Int?   @default(0)
+  detail          String @db.Text
+}
+
+model atm_lichsu {
+  id             Int     @id @default(autoincrement())
+  user_nap       String? @db.VarChar(20)
+  magiaodich     String  @db.Text
+  thoigian       String? @db.Text
+  sotien         String? @db.Text
+  status         Int?
+  accountNo      Int?
+  benAccountName String? @db.VarChar(255)
+  bankName       String? @db.VarChar(255)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model cpanel {
+  userlogin String? @db.VarChar(20)
+  stk       String? @db.VarChar(20)
+  name      String? @db.VarChar(255)
+  password  String? @db.VarChar(255)
+  sessionId String? @db.VarChar(255)
+  deviceId  String? @db.VarChar(255)
+  token     String? @db.VarChar(255)
+  time      Int
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model nap_tien {
+  id             Int       @id @default(autoincrement())
+  username       String    @db.VarChar(50)
+  amount         BigInt?   @default(0)
+  status         Int?      @default(0) @db.TinyInt
+  transaction_id Int?      @unique(map: "idx_transaction_id")
+  reference_code String?   @db.VarChar(100)
+  created_at     DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([status], map: "idx_status")
+  @@index([username], map: "idx_username")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model options {
+  Id   BigInt?
+  Name String? @db.VarChar(1024)
+  Type BigInt?
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sepay_log {
+  id         Int       @id @default(autoincrement())
+  type       String    @db.VarChar(50)
+  message    String    @db.Text
+  data       String?   @db.LongText
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([created_at], map: "idx_created_at")
+  @@index([type], map: "idx_type")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model so_su_menh_reward {
+  level  Int?
+  items  String? @db.VarChar(255)
+  items2 String? @db.VarChar(255)
+
+  @@ignore
+}
+
+model so_su_menh_task {
+  id    Int     @id
+  task  String? @db.VarChar(255)
+  point Int?
+}
+
+model task_pet_template {
+  id       Int    @id @default(autoincrement())
+  nametask String @db.VarChar(255)
+  maxCount Int
+  reward   Int
 }
 
 model trans_log {
@@ -543,17 +604,6 @@ model trans_log {
   giatri   Int      @default(1)
 }
 
-model type_item {
-  id         Int    @id @default(autoincrement())
-  NAME       String @default("") @db.VarChar(50)
-  index_body Int    @default(-1)
-}
-
-model type_sell_item_shop {
-  id   Int    @id @default(autoincrement())
-  NAME String @db.VarChar(50)
-}
-
 model weekly_top_claims {
   id            Int       @id @default(autoincrement())
   player_id     Int
@@ -565,6 +615,15 @@ model weekly_top_claims {
   @@unique([player_id, week_number, year], map: "uk_player_week_year")
   @@index([player_id], map: "idx_player")
   @@index([week_number, year], map: "idx_week")
+}
+
+model weekly_top_resets {
+  id          Int       @id @default(autoincrement())
+  week_number Int
+  year        Int
+  reset_at    DateTime? @default(now()) @db.Timestamp(0)
+
+  @@unique([week_number, year], map: "unique_reset")
 }
 
 model weekly_top_rewards {
