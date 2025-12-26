@@ -164,6 +164,27 @@ export default function Home() {
               </div>
             </Link>
 
+            <Link href="/weekly-top" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-indigo-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Quản lý Weekly Top
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Quản lý bảng xếp hạng hàng tuần và phần thưởng
+                </p>
+                <div className="mt-4 text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
+              </div>
+            </Link>
+
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 opacity-60">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-cyan-500 rounded-lg p-3">
