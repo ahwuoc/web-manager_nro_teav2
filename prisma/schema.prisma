@@ -260,7 +260,7 @@ model player {
   data_location          String   @db.Text
   data_point             String   @db.Text
   data_magic_tree        String   @db.Text
-  items_body             String   @db.Text
+  items_body             String?  @db.MediumText
   items_bag              String   @db.Text
   items_box              String   @db.Text
   items_box_lucky_round  String   @db.Text
@@ -281,9 +281,9 @@ model player {
   create_time            DateTime @default(now()) @db.Timestamp(0)
   firstTimeLogin         DateTime @default(now()) @db.Timestamp(0)
   notify                 String?  @db.Text
-  baovetaikhoan          String   @default("[]") @db.VarChar(1000)
-  captcha                String   @default("[]") @db.VarChar(1000)
-  data_card              String   @default("[]") @db.VarChar(10000)
+  baovetaikhoan          String?  @db.Text
+  captcha                String?  @db.Text
+  data_card              String?  @db.Text
   lasttimepkcommeson     BigInt   @default(0)
   bandokhobau            String   @default("[]") @db.VarChar(250)
   doanhtrai              BigInt   @default(0)
@@ -292,9 +292,9 @@ model player {
   nhanthoivang           String   @default("[]") @db.VarChar(200)
   ruonggo                String   @default("[]") @db.VarChar(255)
   sieuthanthuy           String   @default("[]") @db.VarChar(255)
-  vodaisinhtu            String   @default("[]") @db.VarChar(1000)
+  vodaisinhtu            String?  @db.Text
   rongxuong              BigInt   @default(0)
-  data_item_event        String   @default("[]") @db.VarChar(1000)
+  data_item_event        String?  @db.Text
   data_luyentap          String?  @db.Text
   data_clan_task         String   @default("[]") @db.VarChar(255)
   data_vip               String?  @db.Text
@@ -316,7 +316,7 @@ model player {
   dame_point_fusion      Int      @default(0)
   Achievement            String?  @db.VarChar(255)
   Achievement_SucManh    String?  @db.VarChar(255)
-  so_su_menh             String   @default("{}") @db.VarChar(500)
+  so_su_menh             String?  @db.Text
   pointtet               Int      @default(0)
   san_boss_points        Int      @default(0)
   received_boss_reward   Boolean  @default(false)
@@ -334,7 +334,7 @@ model player {
   pointdapdo             Int?     @default(0)
   pointboss              Int?     @default(0)
   online_milestones      String?  @db.Text
-  tieutien_milestones    Int?     @default(0)
+  tieutien_milestones    String?  @db.Text
   account                account? @relation(fields: [account_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "player_ibfk_1")
 }
 
@@ -646,4 +646,67 @@ model weekly_top_types {
   column_name        String               @db.VarChar(50)
   created_at         DateTime?            @default(now()) @db.Timestamp(0)
   weekly_top_rewards weekly_top_rewards[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model boss_data {
+  id                       Int
+  level_index              Int       @default(0)
+  boss_name                String    @db.VarChar(50)
+  display_name             String    @db.VarChar(100)
+  level_name               String    @db.VarChar(100)
+  gender                   Int       @default(0) @db.TinyInt
+  dame                     BigInt    @default(0)
+  hp                       String    @db.LongText
+  outfit                   String    @db.LongText
+  map_join                 String    @db.LongText
+  appear_type              String    @default("DEFAULT_APPEAR") @db.VarChar(30)
+  seconds_rest             Int       @default(0)
+  skills                   String    @db.LongText
+  text_start               String?   @default("[]") @db.LongText
+  text_mid                 String?   @default("[]") @db.LongText
+  text_end                 String?   @default("[]") @db.LongText
+  rewards                  String?   @default("[]") @db.LongText
+  bosses_appear_together   String?   @db.LongText
+  is_notify_disabled       Boolean?  @default(false)
+  is_zone01_spawn_disabled Boolean?  @default(true)
+  special_class            String?   @db.VarChar(200)
+  auto_spawn               Boolean?  @default(true)
+  created_at               DateTime? @default(now()) @db.Timestamp(0)
+  updated_at               DateTime? @default(now()) @db.Timestamp(0)
+
+  @@id([id, level_index])
+  @@index([appear_type], map: "idx_boss_appear_type")
+  @@index([boss_name], map: "idx_boss_name")
+  @@index([special_class], map: "idx_boss_special_class")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model boss_data_backup {
+  id                       Int
+  level_index              Int       @default(0)
+  boss_name                String    @db.VarChar(50)
+  display_name             String    @db.VarChar(100)
+  level_name               String    @db.VarChar(100)
+  gender                   Int       @default(0) @db.TinyInt
+  dame                     BigInt    @default(0)
+  hp                       String    @db.LongText
+  outfit                   String    @db.LongText
+  map_join                 String    @db.LongText
+  appear_type              String    @default("DEFAULT_APPEAR") @db.VarChar(30)
+  seconds_rest             Int       @default(0)
+  skills                   String    @db.LongText
+  text_start               String?   @default("[]") @db.LongText
+  text_mid                 String?   @default("[]") @db.LongText
+  text_end                 String?   @default("[]") @db.LongText
+  rewards                  String?   @default("[]") @db.LongText
+  bosses_appear_together   String?   @db.LongText
+  is_notify_disabled       Boolean?  @default(false)
+  is_zone01_spawn_disabled Boolean?  @default(true)
+  special_class            String?   @db.VarChar(200)
+  auto_spawn               Boolean?  @default(true)
+  created_at               DateTime? @default(now()) @db.Timestamp(0)
+  updated_at               DateTime? @default(now()) @db.Timestamp(0)
+
+  @@ignore
 }

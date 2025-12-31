@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NRO Game Management System
 
-## Getting Started
+Hệ thống quản lý game Ngọc Rồng Online - Web Admin Panel
 
-First, run the development server:
+## Yêu cầu hệ thống
+
+- Node.js 18+ hoặc Bun 1.0+
+- MySQL/MariaDB database
+- Git
+
+## Cài đặt
+
+### Sử dụng Bun (Khuyến nghị)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone repository
+git clone https://github.com/ahwuoc/web-manager_nro_teav2.git
+cd web-manager_nro_teav2
+
+# Cài đặt dependencies
+bun install
+
+# Tạo file .env
+cp .env.example .env
+# Hoặc tạo thủ công file .env với nội dung:
+# DATABASE_URL="mysql://user:password@localhost:3306/database_name"
+
+# Pull schema từ database
+bun prisma db pull
+
+# Generate Prisma Client
+bun prisma generate
+
+# Chạy development server
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Sử dụng Node.js (npm)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Clone repository
+git clone https://github.com/ahwuoc/web-manager_nro_teav2.git
+cd web-manager_nro_teav2
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Cài đặt dependencies
+npm install
 
-## Learn More
+# Tạo file .env
+cp .env.example .env
+# Hoặc tạo thủ công file .env với nội dung:
+# DATABASE_URL="mysql://user:password@localhost:3306/database_name"
 
-To learn more about Next.js, take a look at the following resources:
+# Pull schema từ database
+npx prisma db pull
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Generate Prisma Client
+npx prisma generate
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Chạy development server
+npm run dev
+```
 
-## Deploy on Vercel
+## Cấu hình Database
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Tạo file `.env` trong thư mục gốc với nội dung:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+DATABASE_URL="mysql://username:password@host:port/database_name?connection_limit=5&pool_timeout=10"
+```
+
+Ví dụ:
+```env
+DATABASE_URL="mysql://root:123456@localhost:3306/nro_v2?connection_limit=5&pool_timeout=10"
+```
+
+## Build Production
+
+### Sử dụng Bun
+```bash
+bun run build
+bun run start
+```
+
+### Sử dụng Node.js
+```bash
+npm run build
+npm run start
+```
+
+## Tính năng
+
+- 🛒 **Quản lý Tab Shop** - Quản lý các tab trong shop, items và cấu hình
+- 💰 **Quản lý Mốc Nạp** - Quản lý thông tin và chi tiết các mốc nạp
+- 🎁 **Quản lý Giftcode** - Quản lý mã quà tặng và phần thưởng
+- 👥 **Quản lý Player** - Ban/unban tài khoản, cộng/trừ tiền
+- ⏰ **Quản lý Mốc Online** - Phần thưởng theo thời gian online
+- 💸 **Quản lý Mốc Tiêu Tiền** - Phần thưởng theo mốc tiêu tiền
+- 📦 **Quản lý Gói Quà** - Quản lý các gói quà trong hệ thống
+- 🏆 **Quản lý Weekly Top** - Bảng xếp hạng hàng tuần và phần thưởng
+
+## Cấu trúc thư mục
+
+```
+├── app/
+│   ├── api/              # API Routes
+│   ├── giftcode/         # Trang quản lý Giftcode
+│   ├── moc-nap/          # Trang quản lý Mốc Nạp
+│   ├── moc-online/       # Trang quản lý Mốc Online
+│   ├── moc-tieutien/     # Trang quản lý Mốc Tiêu Tiền
+│   ├── goi-qua/          # Trang quản lý Gói Quà
+│   ├── player-management/# Trang quản lý Player
+│   ├── tab-shop/         # Trang quản lý Tab Shop
+│   ├── weekly-top/       # Trang quản lý Weekly Top
+│   └── page.tsx          # Trang chủ
+├── lib/
+│   └── prisma.ts         # Prisma Client
+├── prisma/
+│   └── schema.prisma     # Database Schema
+└── .env                  # Environment variables
+```
+
+## Tech Stack
+
+- **Framework**: Next.js 16
+- **Runtime**: Bun / Node.js
+- **Database ORM**: Prisma 6
+- **UI Library**: Ant Design
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
+
+## Lưu ý
+
+- Đảm bảo database MySQL/MariaDB đang chạy trước khi khởi động ứng dụng
+- Sau khi thay đổi schema database, chạy `bun prisma db pull` và `bun prisma generate`
+- Sử dụng `bun run build` để build production trước khi deploy
+
+## License
+
+MIT

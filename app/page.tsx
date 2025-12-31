@@ -185,24 +185,26 @@ export default function Home() {
               </div>
             </Link>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 opacity-60">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="bg-cyan-500 rounded-lg p-3">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
+            <Link href="/boss-data" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-cyan-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Quản lý Boss Data
+                  </h2>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Quản lý Event
-                </h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Quản lý thông tin boss, stats, skills, rewards và spawn behavior
+                </p>
+                <div className="mt-4 text-cyan-600 dark:text-cyan-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
               </div>
-              <p className="text-gray-600 dark:text-gray-400">
-                Sắp ra mắt - Cấu hình và quản lý các sự kiện trong game
-              </p>
-              <div className="mt-4 text-gray-400 font-semibold">
-                Đang phát triển...
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
       </main>
