@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
             text_start, text_mid, text_end,
             rewards, bosses_appear_together,
             is_notify_disabled, is_zone01_spawn_disabled,
-            special_class, auto_spawn
+            special_class, auto_spawn, damage_divisor
         } = body;
 
         if (id === undefined || !boss_name || !display_name || !level_name) {
@@ -98,7 +98,8 @@ export async function POST(request: NextRequest) {
                 is_notify_disabled: is_notify_disabled ?? false,
                 is_zone01_spawn_disabled: is_zone01_spawn_disabled ?? true,
                 special_class: special_class || null,
-                auto_spawn: auto_spawn ?? true
+                auto_spawn: auto_spawn ?? true,
+                damage_divisor: damage_divisor ?? 1
             }
         });
 

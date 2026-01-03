@@ -71,6 +71,7 @@ export async function PUT(
         if (body.is_zone01_spawn_disabled !== undefined) updateData.is_zone01_spawn_disabled = body.is_zone01_spawn_disabled;
         if (body.special_class !== undefined) updateData.special_class = body.special_class;
         if (body.auto_spawn !== undefined) updateData.auto_spawn = body.auto_spawn;
+        if (body.damage_divisor !== undefined) updateData.damage_divisor = body.damage_divisor;
 
         const updatedBoss = await prisma.boss_data.update({
             where: {

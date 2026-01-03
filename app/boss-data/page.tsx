@@ -5,6 +5,7 @@ import { Table, Button, Input, Modal, Space, Tooltip, Form, InputNumber, Select,
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, CopyOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import RewardsEditor from './components/RewardsEditor';
+import SkillsEditor from './components/SkillsEditor';
 
 interface BossData {
     id: number;
@@ -29,6 +30,7 @@ interface BossData {
     is_zone01_spawn_disabled: boolean | null;
     special_class: string | null;
     auto_spawn: boolean | null;
+    damage_divisor: number | null;
 }
 
 const APPEAR_TYPES = [
@@ -67,6 +69,7 @@ const defaultFormData = {
     is_zone01_spawn_disabled: true,
     special_class: '',
     auto_spawn: true,
+    damage_divisor: 1,
 };
 
 interface ItemTemplate {
@@ -84,6 +87,12 @@ interface ItemOptionTemplate {
     NAME: string;
 }
 
+interface SkillTemplate {
+    id: number;
+    NAME: string;
+    nclass_id: number;
+}
+
 export default function BossDataManagement() {
     const [bosses, setBosses] = useState<BossData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -95,6 +104,7 @@ export default function BossDataManagement() {
     const [itemTemplates, setItemTemplates] = useState<{ [key: number]: ItemTemplate }>({});
     const [mapTemplates, setMapTemplates] = useState<{ [key: number]: MapTemplate }>({});
     const [optionTemplates, setOptionTemplates] = useState<{ [key: number]: ItemOptionTemplate }>({});
+    const [skillTemplates, setSkillTemplates] = useState<{ [key: number]: SkillTemplate }>({});
 
     useEffect(() => {
         fetchBosses();
@@ -103,17 +113,20 @@ export default function BossDataManagement() {
 
     const fetchTemplates = async () => {
         try {
-            const [itemRes, mapRes, optionRes] = await Promise.all([
+            const [itemRes, mapRes, optionRes, skillRes] = await Promise.all([
                 fetch('/api/item-template'),
                 fetch('/api/map-template'),
-                fetch('/api/item-option-template')
+                fetch('/api/item-option-template'),
+                fetch('/api/skill-template')
             ]);
             const itemData = await itemRes.json();
             const mapData = await mapRes.json();
             const optionData = await optionRes.json();
+            const skillData = await skillRes.json();
             if (itemData.success) setItemTemplates(itemData.map);
             if (mapData.success) setMapTemplates(mapData.map);
             if (optionData.success) setOptionTemplates(optionData.map);
+            if (skillData.success) setSkillTemplates(skillData.map);
         } catch (error) {
             console.error('Error fetching templates:', error);
         }
@@ -190,6 +203,7 @@ export default function BossDataManagement() {
             is_zone01_spawn_disabled: boss.is_zone01_spawn_disabled ?? true,
             special_class: boss.special_class || '',
             auto_spawn: boss.auto_spawn ?? true,
+            damage_divisor: boss.damage_divisor ?? 1,
         });
         setIsModalOpen(true);
     };
@@ -219,6 +233,7 @@ export default function BossDataManagement() {
             is_zone01_spawn_disabled: boss.is_zone01_spawn_disabled ?? true,
             special_class: boss.special_class || '',
             auto_spawn: boss.auto_spawn ?? true,
+            damage_divisor: boss.damage_divisor ?? 1,
         });
         setIsModalOpen(true);
     };
@@ -306,6 +321,26 @@ export default function BossDataManagement() {
             dataIndex: 'level_name',
             key: 'level_name',
             width: 150,
+        },
+        {
+            title: 'Loại',
+            key: 'type',
+            width: 120,
+            render: (_, record) => (
+                record.special_class ? (
+                    <Tooltip title={record.special_class}>
+                        <Tag color="magenta">Đặc biệt</Tag>
+                    </Tooltip>
+                ) : (
+                    <Tag color="default">Thường</Tag>
+                )
+            ),
+            filters: [
+                { text: 'Boss đặc biệt', value: 'special' },
+                { text: 'Boss thường', value: 'normal' },
+            ],
+            onFilter: (value, record) => 
+                value === 'special' ? !!record.special_class : !record.special_class,
         },
         {
             title: 'Chủng tộc',
@@ -447,6 +482,7 @@ export default function BossDataManagement() {
                     mapTemplates={mapTemplates}
                     itemTemplates={itemTemplates}
                     optionTemplates={optionTemplates}
+                    skillTemplates={skillTemplates}
                 />
             </Modal>
         </div>
@@ -454,13 +490,14 @@ export default function BossDataManagement() {
 }
 
 
-function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplates, optionTemplates }: { 
+function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplates, optionTemplates, skillTemplates }: { 
     formData: typeof defaultFormData; 
     setFormData: (data: typeof defaultFormData) => void; 
     isEditing: boolean;
     mapTemplates: { [key: number]: MapTemplate };
     itemTemplates: { [key: number]: ItemTemplate };
     optionTemplates: { [key: number]: ItemOptionTemplate };
+    skillTemplates: { [key: number]: SkillTemplate };
 }) {
     const mapOptions = Object.values(mapTemplates).map(m => ({
         value: m.id,
@@ -538,27 +575,37 @@ function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplate
             key: 'stats',
             label: 'Stats & Combat',
             children: (
-                <div className="grid grid-cols-2 gap-4">
-                    <Form.Item label="Damage">
-                        <Input
-                            value={formData.dame}
-                            onChange={(e) => setFormData({ ...formData, dame: e.target.value })}
-                            placeholder="VD: 9000, 80000"
-                        />
-                    </Form.Item>
-                    <Form.Item label="HP (JSON array)">
-                        <Input
-                            value={formData.hp}
-                            onChange={(e) => setFormData({ ...formData, hp: e.target.value })}
-                            placeholder='VD: [2000000] hoặc [1000000, 2000000]'
-                        />
-                    </Form.Item>
-                    <Form.Item label="Skills (JSON 2D array)" className="col-span-2">
-                        <Input.TextArea
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <Form.Item label="Damage">
+                            <Input
+                                value={formData.dame}
+                                onChange={(e) => setFormData({ ...formData, dame: e.target.value })}
+                                placeholder="VD: 9000, 80000"
+                            />
+                        </Form.Item>
+                        <Form.Item label="Damage Divisor">
+                            <InputNumber
+                                min={1}
+                                value={formData.damage_divisor}
+                                onChange={(val) => setFormData({ ...formData, damage_divisor: val ?? 1 })}
+                                style={{ width: '100%' }}
+                                placeholder="Hệ số chia damage (mặc định 1)"
+                            />
+                        </Form.Item>
+                        <Form.Item label="HP (JSON array)" className="col-span-2">
+                            <Input
+                                value={formData.hp}
+                                onChange={(e) => setFormData({ ...formData, hp: e.target.value })}
+                                placeholder='VD: [2000000] hoặc [1000000, 2000000]'
+                            />
+                        </Form.Item>
+                    </div>
+                    <Form.Item label="Skills">
+                        <SkillsEditor
                             value={formData.skills}
-                            onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                            placeholder='VD: [[12,3,1000],[19,7,1000]]'
-                            rows={2}
+                            onChange={(val) => setFormData({ ...formData, skills: val })}
+                            skillTemplates={skillTemplates}
                         />
                     </Form.Item>
                 </div>

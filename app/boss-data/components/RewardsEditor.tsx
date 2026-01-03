@@ -33,7 +33,6 @@ interface RewardsEditorProps {
 
 const REWARD_TYPES = [
     { value: 'DO_THAN_LINH', label: 'Đồ Thần Linh' },
-    { value: 'DOT_LIEN', label: 'Đồ Thần Linh (alias)' },
     { value: 'GOLD', label: 'Gold' },
     { value: 'EXP', label: 'EXP' },
     { value: 'RUBY', label: 'Ruby' },
