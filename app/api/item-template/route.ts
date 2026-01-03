@@ -26,7 +26,10 @@ export async function GET(request: NextRequest) {
                 icon_id: true,
                 part: true,
                 gold: true,
-                gem: true
+                gem: true,
+                head: true,
+                body: true,
+                leg: true
             },
             orderBy: {
                 id: 'asc'

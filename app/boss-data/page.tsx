@@ -6,6 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, CopyOutline
 import type { ColumnsType } from 'antd/es/table';
 import RewardsEditor from './components/RewardsEditor';
 import SkillsEditor from './components/SkillsEditor';
+import OutfitEditor from './components/OutfitEditor';
 
 interface BossData {
     id: number;
@@ -75,6 +76,10 @@ const defaultFormData = {
 interface ItemTemplate {
     id: number;
     NAME: string;
+    TYPE?: number;
+    head?: number;
+    body?: number;
+    leg?: number;
 }
 
 interface MapTemplate {
@@ -615,58 +620,60 @@ function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplate
             key: 'appearance',
             label: 'Appearance & Spawn',
             children: (
-                <div className="grid grid-cols-2 gap-4">
-                    <Form.Item label="Outfit (JSON array)">
-                        <Input
+                <div className="space-y-4">
+                    <Form.Item label="Outfit">
+                        <OutfitEditor
                             value={formData.outfit}
-                            onChange={(e) => setFormData({ ...formData, outfit: e.target.value })}
-                            placeholder='VD: [159,160,161,20,-1,-1]'
+                            onChange={(val) => setFormData({ ...formData, outfit: val })}
+                            itemTemplates={itemTemplates}
                         />
                     </Form.Item>
-                    <Form.Item label="Map Join">
-                        <Select
-                            mode="multiple"
-                            value={getSelectedMaps()}
-                            onChange={setSelectedMaps}
-                            options={mapOptions}
-                            placeholder="Chọn maps boss spawn"
-                            showSearch
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            style={{ width: '100%' }}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Appear Type">
-                        <Select
-                            value={formData.appear_type}
-                            onChange={(val) => setFormData({ ...formData, appear_type: val })}
-                            options={APPEAR_TYPES}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Seconds Rest">
-                        <InputNumber
-                            min={0}
-                            value={formData.seconds_rest}
-                            onChange={(val) => setFormData({ ...formData, seconds_rest: val ?? 0 })}
-                            style={{ width: '100%' }}
-                            placeholder="VD: 600 (10 phút)"
-                        />
-                    </Form.Item>
-                    <Form.Item label="Bosses Appear Together (JSON array)">
-                        <Input
-                            value={formData.bosses_appear_together}
-                            onChange={(e) => setFormData({ ...formData, bosses_appear_together: e.target.value })}
-                            placeholder='VD: [-100] hoặc để trống'
-                        />
-                    </Form.Item>
-                    <Form.Item label="Special Class">
-                        <Input
-                            value={formData.special_class}
-                            onChange={(e) => setFormData({ ...formData, special_class: e.target.value })}
-                            placeholder='VD: boss.boss_manifest.Black.BlackGoku'
-                        />
-                    </Form.Item>
+                    <div className="grid grid-cols-2 gap-4">
+                        <Form.Item label="Map Join">
+                            <Select
+                                mode="multiple"
+                                value={getSelectedMaps()}
+                                onChange={setSelectedMaps}
+                                options={mapOptions}
+                                placeholder="Chọn maps boss spawn"
+                                showSearch
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                                style={{ width: '100%' }}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Appear Type">
+                            <Select
+                                value={formData.appear_type}
+                                onChange={(val) => setFormData({ ...formData, appear_type: val })}
+                                options={APPEAR_TYPES}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Seconds Rest">
+                            <InputNumber
+                                min={0}
+                                value={formData.seconds_rest}
+                                onChange={(val) => setFormData({ ...formData, seconds_rest: val ?? 0 })}
+                                style={{ width: '100%' }}
+                                placeholder="VD: 600 (10 phút)"
+                            />
+                        </Form.Item>
+                        <Form.Item label="Bosses Appear Together (JSON array)">
+                            <Input
+                                value={formData.bosses_appear_together}
+                                onChange={(e) => setFormData({ ...formData, bosses_appear_together: e.target.value })}
+                                placeholder='VD: [-100] hoặc để trống'
+                            />
+                        </Form.Item>
+                        <Form.Item label="Special Class" className="col-span-2">
+                            <Input
+                                value={formData.special_class}
+                                onChange={(e) => setFormData({ ...formData, special_class: e.target.value })}
+                                placeholder='VD: boss.boss_manifest.Black.BlackGoku'
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
             ),
         },
