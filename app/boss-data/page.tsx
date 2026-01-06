@@ -7,6 +7,8 @@ import type { ColumnsType } from 'antd/es/table';
 import RewardsEditor from './components/RewardsEditor';
 import SkillsEditor from './components/SkillsEditor';
 import OutfitEditor from './components/OutfitEditor';
+import HpEditor from './components/HpEditor';
+import ChatMessagesEditor from './components/ChatMessagesEditor';
 
 interface BossData {
     id: number;
@@ -598,11 +600,10 @@ function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplate
                                 placeholder="Hệ số chia damage (mặc định 1)"
                             />
                         </Form.Item>
-                        <Form.Item label="HP (JSON array)" className="col-span-2">
-                            <Input
+                        <Form.Item label="HP">
+                            <HpEditor
                                 value={formData.hp}
-                                onChange={(e) => setFormData({ ...formData, hp: e.target.value })}
-                                placeholder='VD: [2000000] hoặc [1000000, 2000000]'
+                                onChange={(val) => setFormData({ ...formData, hp: val })}
                             />
                         </Form.Item>
                     </div>
@@ -683,27 +684,24 @@ function BossForm({ formData, setFormData, isEditing, mapTemplates, itemTemplate
             children: (
                 <div className="space-y-4">
                     <Form.Item label="Text Start (khi spawn)">
-                        <Input.TextArea
+                        <ChatMessagesEditor
                             value={formData.text_start}
-                            onChange={(e) => setFormData({ ...formData, text_start: e.target.value })}
-                            placeholder='VD: ["|-1|Ta sẽ tàn sát khu này"]'
-                            rows={2}
+                            onChange={(val) => setFormData({ ...formData, text_start: val })}
+                            placeholder="VD: Ta sẽ dạy ngươi vài chiêu"
                         />
                     </Form.Item>
                     <Form.Item label="Text Mid (khi đánh)">
-                        <Input.TextArea
+                        <ChatMessagesEditor
                             value={formData.text_mid}
-                            onChange={(e) => setFormData({ ...formData, text_mid: e.target.value })}
-                            placeholder='VD: ["|-1|Các ngươi chỉ có vậy thôi sao?"]'
-                            rows={2}
+                            onChange={(val) => setFormData({ ...formData, text_mid: val })}
+                            placeholder="VD: Xem đây, Hahaha..."
                         />
                     </Form.Item>
                     <Form.Item label="Text End (khi chết/biến hình)">
-                        <Input.TextArea
+                        <ChatMessagesEditor
                             value={formData.text_end}
-                            onChange={(e) => setFormData({ ...formData, text_end: e.target.value })}
-                            placeholder='VD: ["|-1|Biến hình!"]'
-                            rows={2}
+                            onChange={(val) => setFormData({ ...formData, text_end: val })}
+                            placeholder="VD: Biến hình!"
                         />
                     </Form.Item>
                 </div>
