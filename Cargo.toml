@@ -1,0 +1,11 @@
+[package]
+name = "bot_assistant"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hound = "3.5.1"
+anyhow = "1.0"
+tokio = { version = "1.49.0", features = ["full"] }
+serde_json = "1.0.148"
+whisper-rs = "0.15.1"
