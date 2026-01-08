@@ -1,7 +1,10 @@
+
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+// import { prisma } from '@/lib/prisma';
 
 export async function GET() {
+    return NextResponse.json({ success: false, error: 'Feature disabled: Model goi_qua missing from DB' }, { status: 503 });
+    /*
     try {
         const data = await prisma.goi_qua.findMany({
             orderBy: { id: 'asc' }
@@ -11,9 +14,12 @@ export async function GET() {
         console.error('Error fetching goi_qua:', error);
         return NextResponse.json({ success: false, error: 'Không thể lấy danh sách' }, { status: 500 });
     }
+    */
 }
 
 export async function POST(request: NextRequest) {
+    return NextResponse.json({ success: false, error: 'Feature disabled: Model goi_qua missing from DB' }, { status: 503 });
+    /*
     try {
         const body = await request.json();
         const { info, required_amount, detail } = body;
@@ -31,4 +37,5 @@ export async function POST(request: NextRequest) {
         console.error('Error creating goi_qua:', error);
         return NextResponse.json({ success: false, error: 'Không thể tạo mới' }, { status: 500 });
     }
+    */
 }

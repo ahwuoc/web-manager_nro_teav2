@@ -1,10 +1,13 @@
+
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+// import { prisma } from '@/lib/prisma';
 
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    return NextResponse.json({ success: false, error: 'Feature disabled: Model goi_qua missing from DB' }, { status: 503 });
+    /*
     try {
         const { id } = await params;
         const body = await request.json();
@@ -25,12 +28,15 @@ export async function PUT(
         console.error('Error updating goi_qua:', error);
         return NextResponse.json({ success: false, error: 'Không thể cập nhật' }, { status: 500 });
     }
+    */
 }
 
 export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    return NextResponse.json({ success: false, error: 'Feature disabled: Model goi_qua missing from DB' }, { status: 503 });
+    /*
     try {
         const { id } = await params;
         await prisma.goi_qua.delete({ where: { id: parseInt(id) } });
@@ -39,4 +45,5 @@ export async function DELETE(
         console.error('Error deleting goi_qua:', error);
         return NextResponse.json({ success: false, error: 'Không thể xóa' }, { status: 500 });
     }
+    */
 }
