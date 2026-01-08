@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
             select: {
                 id: true,
                 username: true,
+                password: true,
                 email: true,
                 vang: true,
                 cash: true,

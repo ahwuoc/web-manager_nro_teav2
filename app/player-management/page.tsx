@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Table, Button, Input, Modal, Space, Tag, Tooltip, Checkbox } from 'antd';
-import { SearchOutlined, LockOutlined, UnlockOutlined, DollarOutlined } from '@ant-design/icons';
+import { SearchOutlined, LockOutlined, UnlockOutlined, DollarOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
 interface Account {
     id: number;
     username: string;
+    password?: string;
     email: string | null;
     cash: number;
     danap: number;
@@ -20,6 +21,23 @@ interface Account {
         name: string;
     } | null;
 }
+
+const PasswordCell = ({ password }: { password?: string }) => {
+    const [visible, setVisible] = useState(false);
+    if (!password) return <span>-</span>;
+
+    return (
+        <Space>
+            <span>{visible ? password : '••••••'}</span>
+            <Button
+                type="text"
+                size="small"
+                icon={visible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                onClick={() => setVisible(!visible)}
+            />
+        </Space>
+    );
+};
 
 export default function PlayerManagementPage() {
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -127,6 +145,12 @@ export default function PlayerManagementPage() {
             dataIndex: 'email',
             key: 'email',
             render: (text) => text || '-',
+        },
+        {
+            title: 'Password',
+            dataIndex: 'password',
+            key: 'password',
+            render: (text) => <PasswordCell password={text} />,
         },
         {
             title: 'Cash',

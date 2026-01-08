@@ -205,6 +205,27 @@ export default function Home() {
                 </div>
               </div>
             </Link>
+
+            <Link href="/history-transaction" className="group">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl hover:scale-105 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-teal-500 rounded-lg p-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Lịch sử Giao dịch
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Xem lịch sử giao dịch giữa các người chơi, items và thời gian
+                </p>
+                <div className="mt-4 text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
+                  Truy cập →
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </main>
