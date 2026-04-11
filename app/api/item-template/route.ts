@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         const ids = searchParams.get('ids');
 
         let whereClause: any = {};
-        
+
         if (ids) {
             const idArray = ids.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
             whereClause.id = { in: idArray };
@@ -33,13 +33,10 @@ export async function GET(request: NextRequest) {
             where: whereClause,
             orderBy: {
                 id: 'asc'
-            },
-            take: search ? 50 : 200 // Limit for performance if not searching, or keep it manageable
+            }
         });
 
         const serializedItems = itemTemplates.map(serializeItem);
-
-        // Create a map for easy lookup
         const itemMap: { [key: number]: any } = {};
         serializedItems.forEach(item => {
             itemMap[item.id] = item;
@@ -63,7 +60,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        
+
         // Convert power_require string back to BigInt if present
         const data = { ...body };
         if (data.power_require) {
