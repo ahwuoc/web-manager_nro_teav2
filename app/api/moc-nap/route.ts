@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET - Lấy danh sách tất cả moc_nap
 export async function GET(request: NextRequest) {
     try {
         const mocNaps = await prisma.moc_nap.findMany({
@@ -23,7 +22,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Tạo moc_nap mới
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();

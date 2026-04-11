@@ -20,8 +20,8 @@ model account {
   last_post        Int       @default(0)
   role             Int       @default(-1)
   is_admin         Boolean   @default(false)
-  last_time_login  DateTime  @default(dbgenerated("('2002-07-31 12:00:00')")) @db.Timestamp(0)
-  last_time_logout DateTime  @default(dbgenerated("('2002-07-31 12:00:00')")) @db.Timestamp(0)
+  last_time_login  DateTime  @default(dbgenerated("('2002-07-31 05:00:00')")) @db.Timestamp(0)
+  last_time_logout DateTime  @default(dbgenerated("('2002-07-31 05:00:00')")) @db.Timestamp(0)
   ip_address       String?   @db.VarChar(50)
   active           Boolean?  @default(false)
   thoi_vang        Int       @default(0)
@@ -44,6 +44,7 @@ model account {
   gioithieu        Int?
   gmail            String?   @db.VarChar(100)
   player           player?
+  posts            posts[]
 }
 
 model achievement_template {
@@ -130,7 +131,7 @@ model giftcode {
   count_left Int
   detail     String   @db.Text
   datecreate DateTime @default(now()) @db.Timestamp(0)
-  expired    DateTime @default(dbgenerated("('2025-10-10 12:00:00')")) @db.Timestamp(0)
+  expired    DateTime @default(dbgenerated("('2025-10-10 05:00:00')")) @db.Timestamp(0)
   type       Int
 }
 
@@ -665,4 +666,124 @@ model cash_history {
   @@index([account_id], map: "idx_account_id")
   @@index([created_at], map: "idx_created_at")
   @@index([type], map: "idx_type")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model RECOVER_YOUR_DATA_info {
+  READ_ME String? @db.Text
+
+  @@ignore
+}
+
+model categories {
+  id          Int               @id @default(autoincrement()) @db.UnsignedInt
+  name        String            @db.VarChar(100)
+  slug        String            @unique(map: "slug") @db.VarChar(100)
+  description String?           @db.Text
+  status      categories_status @default(active)
+  created_at  DateTime          @default(now()) @db.DateTime(0)
+  updated_at  DateTime?         @db.DateTime(0)
+  posts       posts[]
+
+  @@index([status], map: "idx_status")
+}
+
+model goi_qua {
+  id              Int    @id @default(autoincrement())
+  info            String @db.Text
+  required_amount Int?   @default(0)
+  detail          String @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model history_taixiu {
+  id        Int      @id @default(autoincrement())
+  player_id Int
+  name      String   @db.VarChar(100)
+  amount    BigInt
+  side      Int
+  result    Int
+  status    String   @db.VarChar(10)
+  time      DateTime @default(now()) @db.Timestamp(0)
+}
+
+model log_cash_transaction {
+  id               Int      @id @default(autoincrement())
+  player_id        Int
+  name             String   @db.VarChar(100)
+  amount           BigInt
+  remaining_cash   BigInt
+  transaction_type String?  @default("SUB") @db.VarChar(50)
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+}
+
+model log_item_1788 {
+  id          Int       @id @default(autoincrement())
+  player_id   BigInt?
+  player_name String?   @db.VarChar(100)
+  source      String?   @db.VarChar(200)
+  quantity    Int?
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model posts {
+  id             Int          @id @default(autoincrement())
+  title          String       @db.VarChar(255)
+  slug           String       @unique(map: "slug") @db.VarChar(255)
+  content        String       @db.LongText
+  excerpt        String?      @db.Text
+  featured_image String?      @db.VarChar(500)
+  category_id    Int          @db.UnsignedInt
+  author_id      Int
+  status         posts_status @default(draft)
+  views          Int          @default(0)
+  created_at     DateTime     @default(now()) @db.DateTime(0)
+  updated_at     DateTime?    @db.DateTime(0)
+  published_at   DateTime?    @db.DateTime(0)
+  account        account      @relation(fields: [author_id], references: [id], onUpdate: Restrict, map: "fk_posts_author")
+  categories     categories   @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "fk_posts_category")
+
+  @@index([author_id], map: "idx_author_id")
+  @@index([category_id], map: "idx_category_id")
+  @@index([published_at], map: "idx_published_at")
+  @@index([status], map: "idx_status")
+}
+
+model settings {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  key_name    String    @unique(map: "key_name") @db.VarChar(100)
+  value       String?   @db.Text
+  description String?   @db.VarChar(255)
+  updated_at  DateTime? @db.DateTime(0)
+}
+
+model slides {
+  id         Int           @id @default(autoincrement()) @db.UnsignedInt
+  title      String        @db.VarChar(255)
+  image      String        @db.VarChar(500)
+  link       String?       @db.VarChar(500)
+  status     slides_status @default(active)
+  sort_order Int           @default(0)
+  created_at DateTime      @default(now()) @db.DateTime(0)
+  updated_at DateTime?     @db.DateTime(0)
+
+  @@index([sort_order], map: "idx_sort_order")
+  @@index([status], map: "idx_status")
+}
+
+enum categories_status {
+  active
+  inactive
+}
+
+enum slides_status {
+  active
+  inactive
+}
+
+enum posts_status {
+  published
+  draft
+  trash
 }
