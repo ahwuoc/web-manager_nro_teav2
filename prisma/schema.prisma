@@ -43,7 +43,6 @@ model account {
   admin            Int?      @default(0)
   gioithieu        Int?
   gmail            String?   @db.VarChar(100)
-  player           player?
   posts            posts[]
 }
 
@@ -335,7 +334,6 @@ model player {
   pointdapdo             Int?     @default(0)
   tieutien               Int?     @default(0)
   achievement_tieutien   String?  @default("") @db.Text
-  account                account? @relation(fields: [account_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "player_ibfk_1")
 }
 
 model power_limit {
@@ -666,13 +664,6 @@ model cash_history {
   @@index([account_id], map: "idx_account_id")
   @@index([created_at], map: "idx_created_at")
   @@index([type], map: "idx_type")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model RECOVER_YOUR_DATA_info {
-  READ_ME String? @db.Text
-
-  @@ignore
 }
 
 model categories {

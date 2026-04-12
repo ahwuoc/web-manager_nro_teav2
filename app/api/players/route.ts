@@ -6,14 +6,26 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const search = searchParams.get('search') || '';
 
-        const accounts = await prisma.account.findMany({
-            where: search ? {
+        let whereClause = {};
+
+        if (search) {
+            const players = await prisma.player.findMany({
+                where: { name: { contains: search } },
+                select: { account_id: true }
+            });
+            const accountIdsWithPlayerName = players.map(p => p.account_id).filter(id => id !== null) as number[];
+
+            whereClause = {
                 OR: [
                     { username: { contains: search } },
                     { email: { contains: search } },
-                    { player: { name: { contains: search } } }
+                    { id: { in: accountIdsWithPlayerName } }
                 ]
-            } : {},
+            };
+        }
+
+        const accounts = await prisma.account.findMany({
+            where: whereClause,
             select: {
                 id: true,
                 username: true,
@@ -27,19 +39,28 @@ export async function GET(request: NextRequest) {
                 is_admin: true,
                 create_time: true,
                 last_time_login: true,
-                player: {
-                    select: {
-                        name: true
-                    }
-                }
             },
             take: 50,
             orderBy: { id: 'desc' }
         });
 
+        const accountIds = accounts.map(a => a.id);
+        const playersForAccounts = await prisma.player.findMany({
+            where: { account_id: { in: accountIds } },
+            select: { account_id: true, name: true }
+        });
+        
+        const playerMap: Record<number, any> = {};
+        for (const p of playersForAccounts) {
+            if (p.account_id) {
+                playerMap[p.account_id] = { name: p.name };
+            }
+        }
+
         return NextResponse.json(accounts.map(acc => ({
             ...acc,
-            vang: acc.vang.toString()
+            vang: acc.vang.toString(),
+            player: playerMap[acc.id] || null
         })));
     } catch (error) {
         console.error('Error fetching accounts:', error);
