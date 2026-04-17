@@ -20,8 +20,8 @@ model account {
   last_post        Int       @default(0)
   role             Int       @default(-1)
   is_admin         Boolean   @default(false)
-  last_time_login  DateTime  @default(dbgenerated("('2002-07-31 05:00:00')")) @db.Timestamp(0)
-  last_time_logout DateTime  @default(dbgenerated("('2002-07-31 05:00:00')")) @db.Timestamp(0)
+  last_time_login  DateTime  @default(dbgenerated("'2002-07-31 05:00:00'")) @db.Timestamp(0)
+  last_time_logout DateTime  @default(dbgenerated("'2002-07-31 05:00:00'")) @db.Timestamp(0)
   ip_address       String?   @db.VarChar(50)
   active           Boolean?  @default(false)
   thoi_vang        Int       @default(0)
@@ -130,7 +130,7 @@ model giftcode {
   count_left Int
   detail     String   @db.Text
   datecreate DateTime @default(now()) @db.Timestamp(0)
-  expired    DateTime @default(dbgenerated("('2025-10-10 05:00:00')")) @db.Timestamp(0)
+  expired    DateTime @default(dbgenerated("'2025-10-10 05:00:00'")) @db.Timestamp(0)
   type       Int
 }
 
@@ -201,7 +201,7 @@ model map_template {
   NAME          String @db.VarChar(55)
   zones         Int    @default(1)
   max_player    Int    @default(15)
-  data          String @default("[]") @db.VarChar(1000)
+  data          String @db.VarChar(1000)
   type          Int    @default(1)
   planet_id     Int    @default(1)
   bg_type       Int    @default(1)
@@ -281,22 +281,22 @@ model player {
   create_time            DateTime @default(now()) @db.Timestamp(0)
   firstTimeLogin         DateTime @default(now()) @db.Timestamp(0)
   notify                 String?  @db.Text
-  baovetaikhoan          String   @default("[]") @db.VarChar(1000)
-  captcha                String   @default("[]") @db.VarChar(1000)
-  data_card              String   @default("[]") @db.VarChar(10000)
+  baovetaikhoan          String   @db.VarChar(1000)
+  captcha                String   @db.VarChar(1000)
+  data_card              String   @db.VarChar(10000)
   lasttimepkcommeson     BigInt   @default(0)
-  bandokhobau            String   @default("[]") @db.VarChar(250)
+  bandokhobau            String   @db.VarChar(250)
   doanhtrai              BigInt   @default(0)
-  conduongrandoc         String   @default("[]") @db.VarChar(255)
+  conduongrandoc         String   @db.VarChar(255)
   masterDoesNotAttack    String?  @db.Text
-  nhanthoivang           String   @default("[]") @db.VarChar(200)
-  ruonggo                String   @default("[]") @db.VarChar(255)
-  sieuthanthuy           String   @default("[]") @db.VarChar(255)
-  vodaisinhtu            String   @default("[]") @db.VarChar(1000)
+  nhanthoivang           String   @db.VarChar(200)
+  ruonggo                String   @db.VarChar(255)
+  sieuthanthuy           String   @db.VarChar(255)
+  vodaisinhtu            String   @db.VarChar(1000)
   rongxuong              BigInt   @default(0)
-  data_item_event        String   @default("[]") @db.VarChar(1000)
+  data_item_event        String   @db.VarChar(1000)
   data_luyentap          String?  @db.Text
-  data_clan_task         String   @default("[]") @db.VarChar(255)
+  data_clan_task         String   @db.VarChar(255)
   data_vip               String?  @db.Text
   rank                   Int      @default(0)
   data_super_rank        String?  @db.Text
@@ -354,10 +354,10 @@ model radar {
   max     Int?    @default(60)
   type    Int?    @default(0)
   mob_id  Int?    @default(1)
-  body    String? @default("[]") @db.VarChar(500)
+  body    String? @db.VarChar(500)
   name    String? @default("") @db.VarChar(500)
   info    String? @default("") @db.VarChar(2000)
-  options String? @default("[]") @db.VarChar(2000)
+  options String? @db.VarChar(2000)
   aura_id Int?    @default(-1) @db.SmallInt
 
   @@ignore
@@ -368,7 +368,7 @@ model shop {
   npc_id       Int
   tag_name     String?      @db.VarChar(50)
   type_shop    Int?
-  npc_template npc_template @relation(fields: [npc_id], references: [id], onUpdate: Restrict, map: "shop_ibfk_1")
+  npc_template npc_template @relation(fields: [npc_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_ibfk_1")
   tab_shop     tab_shop[]
 
   @@index([npc_id], map: "npc_id")
@@ -383,7 +383,7 @@ model shop_ky_gui {
   gold        Int
   gem         Int
   quantity    Int
-  itemOption  String @default("[]") @db.VarChar(10000)
+  itemOption  String @db.VarChar(10000)
   lastTime    BigInt
   isBuy       Int
 }
@@ -419,7 +419,7 @@ model tab_shop {
   tab_name  String @db.VarChar(50)
   tab_index Int
   items     String @db.Text
-  shop      shop   @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "tab_shop_ibfk_1")
+  shop      shop   @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tab_shop_ibfk_1")
 
   @@index([shop_id], map: "shop_id")
 }
@@ -604,7 +604,7 @@ model weekly_top_rewards {
   details          String           @db.Text
   description      String?          @db.VarChar(255)
   created_at       DateTime?        @default(now()) @db.Timestamp(0)
-  weekly_top_types weekly_top_types @relation(fields: [top_type_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "1")
+  weekly_top_types weekly_top_types @relation(fields: [top_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "1")
 
   @@index([top_type_id], map: "top_type_id")
 }
@@ -633,10 +633,10 @@ model boss_data {
   appear_type              String    @default("DEFAULT_APPEAR") @db.VarChar(30)
   seconds_rest             Int       @default(0)
   skills                   String    @db.LongText
-  text_start               String?   @default("[]") @db.LongText
-  text_mid                 String?   @default("[]") @db.LongText
-  text_end                 String?   @default("[]") @db.LongText
-  rewards                  String?   @default("[]") @db.LongText
+  text_start               String?   @db.LongText
+  text_mid                 String?   @db.LongText
+  text_end                 String?   @db.LongText
+  rewards                  String?   @db.LongText
   bosses_appear_together   String?   @db.LongText
   is_notify_disabled       Boolean?  @default(false)
   is_zone01_spawn_disabled Boolean?  @default(true)
@@ -732,8 +732,8 @@ model posts {
   created_at     DateTime     @default(now()) @db.DateTime(0)
   updated_at     DateTime?    @db.DateTime(0)
   published_at   DateTime?    @db.DateTime(0)
-  account        account      @relation(fields: [author_id], references: [id], onUpdate: Restrict, map: "fk_posts_author")
-  categories     categories   @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "fk_posts_category")
+  account        account      @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_posts_author")
+  categories     categories   @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_posts_category")
 
   @@index([author_id], map: "idx_author_id")
   @@index([category_id], map: "idx_category_id")
