@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Table, Button, Input, Modal, Space, Tag, Tooltip, Checkbox } from 'antd';
-import { SearchOutlined, LockOutlined, UnlockOutlined, DollarOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { useState, useEffect, useCallback } from 'react';
+import { Table, Button, Input, Modal, Space, Tag, Tooltip, Checkbox, message } from 'antd';
+import { SearchOutlined, LockOutlined, UnlockOutlined, DollarOutlined, EyeOutlined, EyeInvisibleOutlined, KeyOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import type { Key } from 'react';
 
 interface Account {
     id: number;
@@ -50,23 +51,29 @@ export default function PlayerManagementPage() {
     const [actionType, setActionType] = useState<'add' | 'subtract'>('add');
     const [addToDanap, setAddToDanap] = useState(false);
     const [subtractFromDanap, setSubtractFromDanap] = useState(false);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [passwordTarget, setPasswordTarget] = useState<Account | null>(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-    useEffect(() => {
-        fetchAccounts();
-    }, [search]);
-
-    const fetchAccounts = async () => {
+    const fetchAccounts = useCallback(async () => {
         setLoading(true);
         try {
             const response = await fetch(`/api/players?search=${search}`);
             const data = await response.json();
             setAccounts(data);
+            setSelectedRowKeys((current) => current.filter((key) => data.some((account: Account) => account.id === key)));
         } catch (error) {
             console.error('Error fetching accounts:', error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [search]);
+
+    useEffect(() => {
+        fetchAccounts();
+    }, [fetchAccounts]);
 
     const handleBanToggle = async (accountId: number, currentBan: boolean) => {
         setProcessing(true);
@@ -110,6 +117,63 @@ export default function PlayerManagementPage() {
             }
         } catch (error) {
             console.error('Error updating cash:', error);
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const openPasswordModal = (account?: Account) => {
+        setPasswordTarget(account || null);
+        setNewPassword('');
+        setConfirmPassword('');
+        setShowPasswordModal(true);
+    };
+
+    const handleUpdatePassword = async () => {
+        const accountIds = passwordTarget ? [passwordTarget.id] : selectedRowKeys.map((key) => Number(key));
+
+        if (accountIds.length === 0) {
+            message.warning('Vui lòng chọn tài khoản cần đổi mật khẩu');
+            return;
+        }
+
+        if (!newPassword.trim()) {
+            message.warning('Vui lòng nhập mật khẩu mới');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            message.error('Mật khẩu xác nhận không khớp');
+            return;
+        }
+
+        setProcessing(true);
+        try {
+            const response = await fetch('/api/players/password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accountIds, password: newPassword }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                message.error(data.error || 'Đổi mật khẩu thất bại');
+                return;
+            }
+
+            message.success(`Đã đổi mật khẩu cho ${data.updated} tài khoản`);
+            setShowPasswordModal(false);
+            setPasswordTarget(null);
+            setNewPassword('');
+            setConfirmPassword('');
+            if (!passwordTarget) {
+                setSelectedRowKeys([]);
+            }
+            fetchAccounts();
+        } catch (error) {
+            console.error('Error updating password:', error);
+            message.error('Đổi mật khẩu thất bại');
         } finally {
             setProcessing(false);
         }
@@ -209,6 +273,16 @@ export default function PlayerManagementPage() {
                             Tiền
                         </Button>
                     </Tooltip>
+                    <Tooltip title="Đổi mật khẩu">
+                        <Button
+                            size="small"
+                            icon={<KeyOutlined />}
+                            onClick={() => openPasswordModal(record)}
+                            loading={processing}
+                        >
+                            Đổi MK
+                        </Button>
+                    </Tooltip>
                     <Tooltip title={record.ban ? 'Mở khóa' : 'Khóa'}>
                         <Button
                             danger={!record.ban}
@@ -235,13 +309,22 @@ export default function PlayerManagementPage() {
             </div>
 
             <div className="mb-4">
-                <Input
-                    placeholder="Tìm kiếm theo username, email hoặc tên nhân vật..."
-                    prefix={<SearchOutlined />}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{ maxWidth: '400px' }}
-                />
+                <Space wrap>
+                    <Input
+                        placeholder="Tìm kiếm theo username, email hoặc tên nhân vật..."
+                        prefix={<SearchOutlined />}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        style={{ width: '400px', maxWidth: '100%' }}
+                    />
+                    <Button
+                        icon={<KeyOutlined />}
+                        disabled={selectedRowKeys.length === 0}
+                        onClick={() => openPasswordModal()}
+                    >
+                        Đổi mật khẩu đã chọn ({selectedRowKeys.length})
+                    </Button>
+                </Space>
             </div>
 
             <Table
@@ -249,6 +332,10 @@ export default function PlayerManagementPage() {
                 dataSource={accounts}
                 loading={loading}
                 rowKey="id"
+                rowSelection={{
+                    selectedRowKeys,
+                    onChange: setSelectedRowKeys,
+                }}
                 pagination={{
                     pageSize: 20,
                     showSizeChanger: true,
@@ -319,6 +406,42 @@ export default function PlayerManagementPage() {
                             Trừ tiền
                         </Button>
                     </div>
+                </div>
+            </Modal>
+
+            <Modal
+                title={
+                    passwordTarget
+                        ? `Đổi mật khẩu - ${passwordTarget.username}`
+                        : `Đổi mật khẩu ${selectedRowKeys.length} tài khoản`
+                }
+                open={showPasswordModal}
+                onOk={handleUpdatePassword}
+                onCancel={() => setShowPasswordModal(false)}
+                confirmLoading={processing}
+                okText="Đổi mật khẩu"
+                cancelText="Hủy"
+                okButtonProps={{ disabled: !newPassword || !confirmPassword }}
+            >
+                <div className="space-y-4 py-4">
+                    {!passwordTarget && (
+                        <p className="text-sm text-gray-600">
+                            Mật khẩu mới sẽ áp dụng cho toàn bộ tài khoản đang được tick chọn.
+                        </p>
+                    )}
+                    <Input.Password
+                        placeholder="Nhập mật khẩu mới"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        maxLength={100}
+                    />
+                    <Input.Password
+                        placeholder="Nhập lại mật khẩu mới"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        maxLength={100}
+                        onPressEnter={handleUpdatePassword}
+                    />
                 </div>
             </Modal>
         </div>
