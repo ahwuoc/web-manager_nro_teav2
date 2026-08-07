@@ -8,30 +8,29 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import DetailItemEditor from '../moc-nap/components/DetailItemEditor';
+import GearManagement from './GearManagement';
 
 interface ItemTemplate { id: number; NAME: string; }
 interface FishConfig {
     item_id: number; item_name: string; icon_id: number; catch_weight: number;
     min_weight_grams: number; max_weight_grams: number; base_points: string;
-    points_per_kg: number; enabled: boolean; sort_order: number;
+    points_per_kg: number; escape_rate_bps: number; enabled: boolean; sort_order: number;
 }
 interface Milestone {
     id: number; season_id: string; name: string; description: string | null;
     required_points: string; reward_items: string; reward_gold: string;
     reward_gem: number; reward_ruby: number; enabled: boolean; sort_order: number;
 }
-type FishForm = Omit<FishConfig, 'item_name' | 'icon_id' | 'base_points'> & { base_points: number };
-type MilestoneForm = Omit<Milestone, 'id' | 'required_points' | 'reward_gold'> & {
-    required_points: number; reward_gold: number;
-};
+type FishForm = Omit<FishConfig, 'item_name' | 'icon_id'>;
+type MilestoneForm = Omit<Milestone, 'id'>;
 
 const emptyFish: FishForm = {
     item_id: 0, catch_weight: 1, min_weight_grams: 100, max_weight_grams: 1000,
-    base_points: 0, points_per_kg: 1, enabled: true, sort_order: 0,
+    base_points: '0', points_per_kg: 1, escape_rate_bps: 0, enabled: true, sort_order: 0,
 };
 const emptyMilestone = (season: string): MilestoneForm => ({
-    season_id: season, name: '', description: '', required_points: 100,
-    reward_items: '[]', reward_gold: 0, reward_gem: 0, reward_ruby: 0,
+    season_id: season, name: '', description: '', required_points: '100',
+    reward_items: '[]', reward_gold: '0', reward_gem: 0, reward_ruby: 0,
     enabled: true, sort_order: 0,
 });
 
@@ -47,6 +46,7 @@ export default function FishingEventManagement() {
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [items, setItems] = useState<ItemTemplate[]>([]);
     const [season, setSeason] = useState('2026-08');
+    const [seasonInput, setSeasonInput] = useState('2026-08');
     const [loadingFish, setLoadingFish] = useState(false);
     const [loadingMilestones, setLoadingMilestones] = useState(false);
     const [fishModal, setFishModal] = useState(false);
@@ -88,15 +88,15 @@ export default function FishingEventManagement() {
 
     const openFish = (row?: FishConfig) => {
         setEditingFishId(row?.item_id ?? null);
-        setFishForm(row ? { ...row, base_points: Number(row.base_points) } : { ...emptyFish });
+        setFishForm(row ? { ...row } : { ...emptyFish });
         setFishModal(true);
     };
     const openMilestone = (row?: Milestone) => {
         setEditingMilestoneId(row?.id ?? null);
         setMilestoneForm(row ? {
             season_id: row.season_id, name: row.name, description: row.description ?? '',
-            required_points: Number(row.required_points), reward_items: row.reward_items,
-            reward_gold: Number(row.reward_gold), reward_gem: row.reward_gem,
+            required_points: row.required_points, reward_items: row.reward_items,
+            reward_gold: row.reward_gold, reward_gem: row.reward_gem,
             reward_ruby: row.reward_ruby, enabled: row.enabled, sort_order: row.sort_order,
         } : emptyMilestone(season));
         setMilestoneModal(true);
@@ -148,16 +148,17 @@ export default function FishingEventManagement() {
         { title: 'Cá', key: 'fish', render: (_, row) => <><b>{row.item_name}</b><br/><Typography.Text type="secondary">#{row.item_id} · icon {row.icon_id}</Typography.Text></> },
         { title: 'Trọng số / tỷ lệ', dataIndex: 'catch_weight', render: (value, row) => <>{value}<br/><Tag color="blue">{row.enabled && totalWeight ? (value * 100 / totalWeight).toFixed(2) : '0.00'}%</Tag></> },
         { title: 'Cân nặng', key: 'weight', render: (_, row) => `${row.min_weight_grams.toLocaleString()} - ${row.max_weight_grams.toLocaleString()} g` },
-        { title: 'Điểm', key: 'points', render: (_, row) => `${Number(row.base_points).toLocaleString()} cơ bản + ${row.points_per_kg}/kg` },
+        { title: 'Điểm', key: 'points', render: (_, row) => `${BigInt(row.base_points).toLocaleString()} cơ bản + ${row.points_per_kg}/kg` },
+        { title: 'Vùng thoát', dataIndex: 'escape_rate_bps', render: (value) => `${(value / 100).toFixed(2)}%` },
         { title: 'Trạng thái', dataIndex: 'enabled', render: (enabled) => <Tag color={enabled ? 'green' : 'default'}>{enabled ? 'Đang câu được' : 'Đã tắt'}</Tag> },
         { title: 'Thứ tự', dataIndex: 'sort_order', width: 80 },
         { title: 'Thao tác', key: 'actions', render: (_, row) => <Space><Button onClick={() => openFish(row)}>Sửa</Button><Button danger onClick={() => remove('fish', row.item_id)}>Xóa</Button></Space> },
     ];
     const milestoneColumns: ColumnsType<Milestone> = [
         { title: 'Mốc', key: 'name', render: (_, row) => <><b>{row.name}</b><br/><Typography.Text type="secondary">#{row.id} · thứ tự {row.sort_order}</Typography.Text></> },
-        { title: 'Điểm yêu cầu', dataIndex: 'required_points', render: (value) => Number(value).toLocaleString() },
+        { title: 'Điểm yêu cầu', dataIndex: 'required_points', render: (value) => BigInt(value).toLocaleString() },
         { title: 'Item thưởng', dataIndex: 'reward_items', render: (value) => { try { const parsed = JSON.parse(value); return `${parsed.length} item`; } catch { return <Tag color="red">JSON lỗi</Tag>; } } },
-        { title: 'Tiền thưởng', key: 'money', render: (_, row) => `Vàng ${Number(row.reward_gold).toLocaleString()} · Ngọc ${row.reward_gem.toLocaleString()} · Hồng ngọc ${row.reward_ruby.toLocaleString()}` },
+        { title: 'Tiền thưởng', key: 'money', render: (_, row) => `Vàng ${BigInt(row.reward_gold).toLocaleString()} · Ngọc ${row.reward_gem.toLocaleString()} · Hồng ngọc ${row.reward_ruby.toLocaleString()}` },
         { title: 'Trạng thái', dataIndex: 'enabled', render: (enabled) => <Tag color={enabled ? 'green' : 'default'}>{enabled ? 'Đang bật' : 'Đã tắt'}</Tag> },
         { title: 'Thao tác', key: 'actions', render: (_, row) => <Space><Button onClick={() => openMilestone(row)}>Sửa</Button><Button danger onClick={() => remove('milestone', row.id)}>Xóa</Button></Space> },
     ];
@@ -175,7 +176,8 @@ export default function FishingEventManagement() {
                 { key: 'fish', label: `Loài cá (${fish.length})`, children: <Card extra={<Button type="primary" onClick={() => openFish()}>Thêm loài cá</Button>}>
                     <Table rowKey="item_id" loading={loadingFish} dataSource={fish} columns={fishColumns} scroll={{ x: 1000 }} pagination={false} />
                 </Card> },
-                { key: 'milestones', label: `Mốc thưởng (${milestones.length})`, children: <Card title={<Space>Mùa <Input value={season} maxLength={32} onChange={(event) => setSeason(event.target.value)} onPressEnter={loadMilestones} style={{ width: 150 }}/><Button onClick={loadMilestones}>Tải</Button></Space>}
+                { key: 'gear', label: 'Cần, mồi & chế tạo', children: <GearManagement/> },
+                { key: 'milestones', label: `Mốc thưởng (${milestones.length})`, children: <Card title={<Space>Mùa <Input value={seasonInput} maxLength={32} onChange={(event) => setSeasonInput(event.target.value)} onPressEnter={() => setSeason(seasonInput.trim())} style={{ width: 150 }}/><Button onClick={() => setSeason(seasonInput.trim())}>Tải</Button></Space>}
                     extra={<Button type="primary" onClick={() => openMilestone()}>Thêm mốc bất kỳ</Button>}>
                     <Table rowKey="id" loading={loadingMilestones} dataSource={milestones} columns={milestoneColumns} scroll={{ x: 1100 }} pagination={false} />
                 </Card> },
@@ -190,8 +192,9 @@ export default function FishingEventManagement() {
                     <Form.Item label="Thứ tự"><InputNumber min={0} className="w-full" value={fishForm.sort_order} onChange={(value) => setFishForm({ ...fishForm, sort_order: value ?? 0 })}/></Form.Item>
                     <Form.Item label="Cân nặng nhỏ nhất (g)" required><InputNumber min={1} className="w-full" value={fishForm.min_weight_grams} onChange={(value) => setFishForm({ ...fishForm, min_weight_grams: value ?? 1 })}/></Form.Item>
                     <Form.Item label="Cân nặng lớn nhất (g)" required><InputNumber min={1} className="w-full" value={fishForm.max_weight_grams} onChange={(value) => setFishForm({ ...fishForm, max_weight_grams: value ?? 1 })}/></Form.Item>
-                    <Form.Item label="Điểm cơ bản"><InputNumber min={0} className="w-full" value={fishForm.base_points} onChange={(value) => setFishForm({ ...fishForm, base_points: value ?? 0 })}/></Form.Item>
+                    <Form.Item label="Điểm cơ bản"><InputNumber stringMode min="0" className="w-full" value={fishForm.base_points} onChange={(value) => setFishForm({ ...fishForm, base_points: String(value ?? '0') })}/></Form.Item>
                     <Form.Item label="Điểm mỗi kg"><InputNumber min={0} className="w-full" value={fishForm.points_per_kg} onChange={(value) => setFishForm({ ...fishForm, points_per_kg: value ?? 0 })}/></Form.Item>
+                    <Form.Item label="Tỷ lệ cá vùng thoát (%)"><InputNumber min={0} max={100} step={0.1} className="w-full" value={fishForm.escape_rate_bps / 100} onChange={(value) => setFishForm({ ...fishForm, escape_rate_bps: Math.round((value ?? 0) * 100) })}/></Form.Item>
                 </div>
                 <Form.Item label="Cho phép câu"><Switch checked={fishForm.enabled} onChange={(enabled) => setFishForm({ ...fishForm, enabled })}/></Form.Item>
             </Form>
@@ -202,13 +205,13 @@ export default function FishingEventManagement() {
                 <div className="grid grid-cols-2 gap-x-4">
                     <Form.Item label="Mùa" required><Input value={milestoneForm.season_id} disabled={editingMilestoneId !== null} onChange={(event) => setMilestoneForm({ ...milestoneForm, season_id: event.target.value })}/></Form.Item>
                     <Form.Item label="Tên mốc" required><Input value={milestoneForm.name} onChange={(event) => setMilestoneForm({ ...milestoneForm, name: event.target.value })}/></Form.Item>
-                    <Form.Item label="Điểm yêu cầu" required><InputNumber min={0} className="w-full" value={milestoneForm.required_points} onChange={(value) => setMilestoneForm({ ...milestoneForm, required_points: value ?? 0 })}/></Form.Item>
+                    <Form.Item label="Điểm yêu cầu" required><InputNumber stringMode min="0" className="w-full" value={milestoneForm.required_points} onChange={(value) => setMilestoneForm({ ...milestoneForm, required_points: String(value ?? '0') })}/></Form.Item>
                     <Form.Item label="Thứ tự"><InputNumber min={0} className="w-full" value={milestoneForm.sort_order} onChange={(value) => setMilestoneForm({ ...milestoneForm, sort_order: value ?? 0 })}/></Form.Item>
                 </div>
                 <Form.Item label="Mô tả"><Input value={milestoneForm.description ?? ''} maxLength={255} onChange={(event) => setMilestoneForm({ ...milestoneForm, description: event.target.value })}/></Form.Item>
                 <Card size="small" className="mb-4"><DetailItemEditor value={milestoneForm.reward_items} onChange={(reward_items) => setMilestoneForm((current) => ({ ...current, reward_items }))}/></Card>
                 <div className="grid grid-cols-3 gap-x-4">
-                    <Form.Item label="Vàng"><InputNumber min={0} className="w-full" value={milestoneForm.reward_gold} onChange={(value) => setMilestoneForm({ ...milestoneForm, reward_gold: value ?? 0 })}/></Form.Item>
+                    <Form.Item label="Vàng"><InputNumber stringMode min="0" className="w-full" value={milestoneForm.reward_gold} onChange={(value) => setMilestoneForm({ ...milestoneForm, reward_gold: String(value ?? '0') })}/></Form.Item>
                     <Form.Item label="Ngọc"><InputNumber min={0} className="w-full" value={milestoneForm.reward_gem} onChange={(value) => setMilestoneForm({ ...milestoneForm, reward_gem: value ?? 0 })}/></Form.Item>
                     <Form.Item label="Hồng ngọc"><InputNumber min={0} className="w-full" value={milestoneForm.reward_ruby} onChange={(value) => setMilestoneForm({ ...milestoneForm, reward_ruby: value ?? 0 })}/></Form.Item>
                 </div>

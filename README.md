@@ -111,7 +111,7 @@ npm run start
 - 💸 **Quản lý Mốc Tiêu Tiền** - Phần thưởng theo mốc tiêu tiền
 - 📦 **Quản lý Gói Quà** - Quản lý các gói quà trong hệ thống
 - 🏆 **Quản lý Weekly Top** - Bảng xếp hạng hàng tuần và phần thưởng
-- 🎣 **Quản lý Sự kiện Câu cá** - Loài cá, cân nặng, điểm và mốc thưởng JSON theo mùa
+- 🎣 **Quản lý Sự kiện Câu cá** - Loài cá/cân nặng/điểm, tỷ lệ hụt, tốc độ và độ bền cần, mồi, công thức chế tạo và mốc thưởng JSON theo mùa
 
 ## Cấu trúc thư mục
 

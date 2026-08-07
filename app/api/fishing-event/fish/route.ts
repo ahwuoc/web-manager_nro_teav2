@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { errorResponse, requiredBigInt, requiredInt } from '@/lib/fishing-event';
+import { basisPoints, errorResponse, requiredBigInt, requiredInt } from '@/lib/fishing-event';
 
 const serialize = (row: {
     item_id: number; catch_weight: number; min_weight_grams: number; max_weight_grams: number;
     base_points: bigint; points_per_kg: number; enabled: boolean; sort_order: number;
+    escape_rate_bps: number;
 }, item?: { NAME: string; icon_id: number }) => ({
     ...row,
     base_points: row.base_points.toString(),
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
             max_weight_grams: maxWeight,
             base_points: requiredBigInt(body.base_points, 'Điểm cơ bản'),
             points_per_kg: requiredInt(body.points_per_kg, 'Điểm mỗi kg', 0),
+            escape_rate_bps: basisPoints(body.escape_rate_bps ?? 0, 'Tỷ lệ cá vùng thoát'),
             enabled: body.enabled ?? true,
             sort_order: requiredInt(body.sort_order ?? 0, 'Thứ tự', 0),
         }});

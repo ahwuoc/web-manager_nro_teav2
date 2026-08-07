@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { errorResponse, requiredBigInt, requiredInt } from '@/lib/fishing-event';
+import { basisPoints, errorResponse, requiredBigInt, requiredInt } from '@/lib/fishing-event';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ itemId: string }> }) {
     try {
@@ -14,6 +14,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             max_weight_grams: maxWeight,
             base_points: requiredBigInt(body.base_points, 'Điểm cơ bản'),
             points_per_kg: requiredInt(body.points_per_kg, 'Điểm mỗi kg', 0),
+            escape_rate_bps: basisPoints(body.escape_rate_bps ?? 0, 'Tỷ lệ cá vùng thoát'),
             enabled: body.enabled ?? true,
             sort_order: requiredInt(body.sort_order ?? 0, 'Thứ tự', 0),
         }});
