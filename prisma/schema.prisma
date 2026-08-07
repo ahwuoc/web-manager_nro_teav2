@@ -196,6 +196,58 @@ model item_template {
   comment             String? @default("") @db.VarChar(2000)
 }
 
+model fishing_fish_config {
+  item_id          Int      @id
+  catch_weight     Int      @default(1) @db.UnsignedInt
+  min_weight_grams Int      @default(1) @db.UnsignedInt
+  max_weight_grams Int      @default(1000) @db.UnsignedInt
+  base_points      BigInt   @default(0) @db.UnsignedBigInt
+  points_per_kg    Int      @default(1) @db.UnsignedInt
+  enabled          Boolean  @default(true)
+  sort_order       Int      @default(0)
+  created_at       DateTime @default(now()) @db.Timestamp(3)
+  updated_at       DateTime @default(now()) @updatedAt @db.Timestamp(3)
+}
+
+model fishing_milestone {
+  id              Int      @id @default(autoincrement()) @db.UnsignedInt
+  season_id       String   @db.VarChar(32)
+  name            String   @db.VarChar(100)
+  description     String?  @db.VarChar(255)
+  required_points BigInt   @db.UnsignedBigInt
+  reward_items    String   @default("[]") @db.LongText
+  reward_gold     BigInt   @default(0) @db.UnsignedBigInt
+  reward_gem      Int      @default(0)
+  reward_ruby     Int      @default(0)
+  enabled         Boolean  @default(true)
+  sort_order      Int      @default(0)
+  created_at      DateTime @default(now()) @db.Timestamp(3)
+  updated_at      DateTime @default(now()) @updatedAt @db.Timestamp(3)
+
+  @@unique([season_id, required_points], map: "uk_fishing_milestone_season_points")
+  @@index([season_id, enabled, sort_order], map: "idx_fishing_milestone_season_order")
+}
+
+model fishing_milestone_claim {
+  season_id    String   @db.VarChar(32)
+  player_id    Int
+  milestone_id Int      @db.UnsignedInt
+  claimed_at   DateTime @default(now()) @db.Timestamp(3)
+
+  @@id([season_id, player_id, milestone_id])
+}
+
+model fishing_rank {
+  season_id   String   @db.VarChar(32)
+  player_id   Int
+  catch_count BigInt   @default(0) @db.UnsignedBigInt
+  score       BigInt   @default(0) @db.UnsignedBigInt
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(3)
+
+  @@id([season_id, player_id])
+  @@index([season_id, score, catch_count, player_id], map: "idx_fishing_rank_season_points")
+}
+
 model map_template {
   id            Int    @id
   NAME          String @db.VarChar(55)
