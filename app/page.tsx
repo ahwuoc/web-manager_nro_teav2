@@ -2,6 +2,17 @@ import Link from "next/link";
 
 const managementModules = [
   {
+    title: "Quản lý Sự kiện Câu cá",
+    description: "Chỉnh loài cá, cân nặng, điểm và mốc thưởng theo mùa",
+    href: "/fishing-event",
+    color: "sky",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 15c4-5 10-5 16 0-6 5-12 5-16 0zm0 0-2-3m12 2h.01" />
+      </svg>
+    ),
+  },
+  {
     title: "Quản lý Tab Shop",
     description: "Quản lý các tab trong shop, thêm/sửa/xóa items và cấu hình shop",
     href: "/tab-shop",
@@ -149,6 +160,7 @@ const colorClasses: { [key: string]: string } = {
   teal: "bg-teal-500 text-teal-600",
   slate: "bg-slate-600 text-slate-600",
   amber: "bg-amber-500 text-amber-600",
+  sky: "bg-sky-500 text-sky-600",
 };
 
 export default function Home() {

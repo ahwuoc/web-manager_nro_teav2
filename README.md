@@ -73,6 +73,20 @@ Ví dụ:
 DATABASE_URL="mysql://root:123456@localhost:3306/nro_v2?connection_limit=5&pool_timeout=10"
 ```
 
+## Cài schema sự kiện câu cá
+
+Chạy một lần trên database game trước khi mở trang quản trị câu cá:
+
+```bash
+mariadb -u <user> -p <database> < prisma/sql/20260807_fishing_event.sql
+```
+
+Sau đó có thể thêm không giới hạn mốc theo mùa tại `/fishing-event`. Trường `reward_items` dùng JSON dạng:
+
+```json
+[{"temp_id":1997,"quantity":1,"options":[{"id":30,"param":1}]}]
+```
+
 ## Build Production
 
 ### Sử dụng Bun
@@ -97,6 +111,7 @@ npm run start
 - 💸 **Quản lý Mốc Tiêu Tiền** - Phần thưởng theo mốc tiêu tiền
 - 📦 **Quản lý Gói Quà** - Quản lý các gói quà trong hệ thống
 - 🏆 **Quản lý Weekly Top** - Bảng xếp hạng hàng tuần và phần thưởng
+- 🎣 **Quản lý Sự kiện Câu cá** - Loài cá/cân nặng/điểm, tỷ lệ hụt, tốc độ và độ bền cần, mồi, công thức chế tạo và mốc thưởng JSON theo mùa
 
 ## Cấu trúc thư mục
 
